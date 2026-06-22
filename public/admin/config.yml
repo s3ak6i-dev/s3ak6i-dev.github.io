@@ -21,3 +21,36 @@ collections:
       - { label: Updated Date, name: updatedDate, widget: datetime, date_format: YYYY-MM-DD, time_format: false, picker_utc: true, required: false }
       - { label: Hero Image, name: heroImage, widget: image, required: false, hint: "Optional cover image shown at the top of the post" }
       - { label: Body, name: body, widget: markdown }
+
+  - name: projects
+    label: Projects
+    folder: src/content/projects
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Description, name: description, widget: string, hint: "One-line summary shown on the card" }
+      - { label: Year, name: year, widget: number, value_type: int }
+      - label: Status
+        name: status
+        widget: select
+        options: [active, completed, archived]
+        default: completed
+      - { label: Stack, name: stack, widget: list, hint: "Tech tags e.g. Python, PyTorch" }
+      - { label: Image, name: image, widget: image, required: false, hint: "Cover image for the card and detail page" }
+      - { label: GitHub URL, name: github, widget: string, required: false }
+      - { label: Demo URL, name: demo, widget: string, required: false }
+      - { label: Body, name: body, widget: markdown, hint: "Full project writeup" }
+
+  - name: now
+    label: Now Page
+    files:
+      - label: Now
+        name: now
+        file: src/content/now/now.md
+        fields:
+          - { label: Updated Date, name: updatedDate, widget: datetime, date_format: YYYY-MM-DD, time_format: false, picker_utc: true }
+          - { label: Body, name: body, widget: markdown }

@@ -1,0 +1,202 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+
+export async function getStaticPaths() {
+	const projects = await getCollection('projects');
+	return projects.map((project) => ({
+		params: { slug: project.id },
+		props: project,
+	}));
+}
+
+const project = Astro.props;
+const { Content } = await render(project);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`${project.data.name} — ${SITE_TITLE}`}
+			description={project.data.description}
+		/>
+		<style>
+			.prose {
+				width: 720px;
+				max-width: calc(100% - 2rem);
+				margin: 0 auto;
+				padding: 3rem 1rem 5rem;
+			}
+
+			.back {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 13px;
+				color: var(--text-muted);
+				text-decoration: none;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.375rem;
+				margin-bottom: 2rem;
+				transition: color 0.15s;
+			}
+
+			.back:hover {
+				color: var(--accent);
+			}
+
+			.hero-image {
+				width: 100%;
+				aspect-ratio: 16 / 9;
+				border-radius: 8px;
+				overflow: hidden;
+				margin-bottom: 2rem;
+				background: var(--surface-2);
+				border: 1px solid var(--border);
+			}
+
+			.hero-image img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.project-header {
+				margin-bottom: 2rem;
+			}
+
+			.project-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 2.25rem;
+				font-weight: 700;
+				color: var(--text);
+				line-height: 1.15;
+				margin: 0 0 1rem 0;
+			}
+
+			.meta-row {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+				flex-wrap: wrap;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 13px;
+				color: var(--text-muted);
+				margin-bottom: 1rem;
+			}
+
+			.status-badge {
+				padding: 1px 8px;
+				border-radius: 4px;
+				border: 1px solid var(--border);
+				font-size: 11px;
+			}
+
+			.status-active {
+				color: #4ade80;
+				border-color: #4ade8040;
+				background: #4ade8010;
+			}
+
+			.status-completed { color: var(--text-muted); }
+			.status-archived { color: var(--text-muted); opacity: 0.6; }
+
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.375rem;
+				margin-bottom: 1rem;
+			}
+
+			.tag {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				color: var(--text-muted);
+				background: var(--surface-2);
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				padding: 1px 7px;
+			}
+
+			.links {
+				display: flex;
+				gap: 1rem;
+				margin-bottom: 2rem;
+			}
+
+			.link-btn {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 13px;
+				color: var(--accent);
+				text-decoration: none;
+				border: 1px solid var(--accent);
+				border-radius: 4px;
+				padding: 4px 12px;
+				transition: background 0.15s, color 0.15s;
+			}
+
+			.link-btn:hover {
+				background: var(--accent);
+				color: #fff;
+			}
+
+			.divider {
+				border: none;
+				border-top: 1px solid var(--border);
+				margin: 0 0 2rem;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main style="padding: 0; max-width: 100%; width: 100%;">
+			<div class="prose">
+				<a class="back" href="/projects">← All projects</a>
+
+				{project.data.image && (
+					<div class="hero-image">
+						<img src={project.data.image} alt={project.data.name} />
+					</div>
+				)}
+
+				<div class="project-header">
+					<h1 class="project-title">{project.data.name}</h1>
+					<div class="meta-row">
+						<span>{project.data.year}</span>
+						<span class={`status-badge status-${project.data.status}`}>
+							{project.data.status}
+						</span>
+					</div>
+					{project.data.stack.length > 0 && (
+						<div class="tags">
+							{project.data.stack.map((tag) => (
+								<span class="tag">{tag}</span>
+							))}
+						</div>
+					)}
+					{(project.data.github || project.data.demo) && (
+						<div class="links">
+							{project.data.github && (
+								<a class="link-btn" href={project.data.github} target="_blank" rel="noopener noreferrer">
+									GitHub →
+								</a>
+							)}
+							{project.data.demo && (
+								<a class="link-btn" href={project.data.demo} target="_blank" rel="noopener noreferrer">
+									Live demo →
+								</a>
+							)}
+						</div>
+					)}
+				</div>
+
+				<hr class="divider" />
+				<Content />
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
