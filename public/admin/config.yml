@@ -19,4 +19,5 @@ collections:
       - { label: Description, name: description, widget: string }
       - { label: Publish Date, name: pubDate, widget: datetime, date_format: YYYY-MM-DD, time_format: false, picker_utc: true }
       - { label: Updated Date, name: updatedDate, widget: datetime, date_format: YYYY-MM-DD, time_format: false, picker_utc: true, required: false }
+      - { label: Hero Image, name: heroImage, widget: image, required: false, hint: "Optional cover image shown at the top of the post" }
       - { label: Body, name: body, widget: markdown }
