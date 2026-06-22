@@ -1,0 +1,299 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`Research — ${SITE_TITLE}`}
+			description="Publications, patents, and research work by Surya Krishna Bharadwaj Kunapuli."
+		/>
+		<style>
+			.page {
+				width: 720px;
+				max-width: calc(100% - 2rem);
+				margin: 0 auto;
+				padding: 3rem 1rem 5rem;
+			}
+
+			.page-heading {
+				font-size: 2rem;
+				margin-bottom: 0.375rem;
+			}
+
+			.page-sub {
+				color: var(--text-muted);
+				font-size: 1rem;
+				margin-bottom: 3rem;
+			}
+
+			/* Section label */
+			.section-label {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: var(--accent);
+				margin-bottom: 1.25rem;
+			}
+
+			.section {
+				margin-bottom: 3.5rem;
+			}
+
+			/* Publication card */
+			.pub {
+				padding: 1.5rem 0;
+				border-top: 1px solid var(--border);
+			}
+
+			.pub:last-child {
+				border-bottom: 1px solid var(--border);
+			}
+
+			.pub-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1.0625rem;
+				font-weight: 500;
+				color: var(--text);
+				margin: 0 0 0.375rem 0;
+				line-height: 1.35;
+			}
+
+			.pub-title a {
+				color: var(--text);
+				text-decoration: none;
+				border-bottom: 1px solid var(--border);
+				transition: border-color 0.15s, color 0.15s;
+			}
+
+			.pub-title a:hover {
+				color: var(--accent);
+				border-bottom-color: var(--accent);
+			}
+
+			.pub-venue {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 13px;
+				color: var(--text-muted);
+				margin-bottom: 0.75rem;
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+			}
+
+			.pub-badge {
+				background: var(--surface-2);
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				padding: 1px 8px;
+				font-size: 11px;
+				color: var(--accent);
+				font-family: 'JetBrains Mono', monospace;
+			}
+
+			.pub-abstract {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.65;
+				margin: 0;
+			}
+
+			/* Patent card */
+			.patent {
+				padding: 1.5rem;
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 6px;
+				border-left: 2px solid var(--accent);
+			}
+
+			.patent-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1.0625rem;
+				font-weight: 500;
+				color: var(--text);
+				margin: 0 0 0.5rem 0;
+				line-height: 1.35;
+			}
+
+			.patent-meta {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 12px;
+				color: var(--text-muted);
+				margin-bottom: 0.75rem;
+				line-height: 1.7;
+			}
+
+			.patent-meta span {
+				display: block;
+			}
+
+			.patent-desc {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.65;
+				margin: 0;
+			}
+
+			/* Academic work */
+			.project {
+				padding: 1.5rem 0;
+				border-top: 1px solid var(--border);
+			}
+
+			.project:last-child {
+				border-bottom: 1px solid var(--border);
+			}
+
+			.project-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1rem;
+				font-weight: 500;
+				color: var(--text);
+				margin: 0 0 0.375rem 0;
+			}
+
+			.project-date {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 12px;
+				color: var(--text-muted);
+				margin-bottom: 0.625rem;
+			}
+
+			.project-desc {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.65;
+				margin: 0;
+			}
+
+			.project-stack {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.375rem;
+				margin-top: 0.75rem;
+			}
+
+			.tag {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				color: var(--text-muted);
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				padding: 1px 7px;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main style="padding: 0; max-width: 100%; width: 100%;">
+			<div class="page">
+				<h1 class="page-heading">Research</h1>
+				<p class="page-sub">Publications, patents, and academic work.</p>
+
+				<!-- Publications -->
+				<section class="section">
+					<p class="section-label">Publications</p>
+
+					<div class="pub">
+						<h2 class="pub-title">
+							<a
+								href="https://doi.org/10.1109/ICCCNT61001.2024.10725885"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Dynamic Resource Allocation for Edge Computing
+							</a>
+						</h2>
+						<div class="pub-venue">
+							<span>IEEE ICCCNT-24 · IIT Mandi · Jun 2024</span>
+							<span class="pub-badge">4 citations</span>
+							<span class="pub-badge">DOI</span>
+						</div>
+						<p class="pub-abstract">
+							Combined quantum-inspired algorithms with game theory for multi-agent coordination,
+							testing it on edge environments with tight resource constraints. Beat static baselines
+							on both latency and resource use.
+						</p>
+					</div>
+
+					<div class="pub">
+						<h2 class="pub-title">
+							<a
+								href="https://doi.org/10.1109/ICCCNT61001.2024.10724361"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Dynamic Portfolio Optimization Using Proximal Gradient Method
+							</a>
+						</h2>
+						<div class="pub-venue">
+							<span>IEEE ICCCNT-24 · IIT Mandi · Jun 2024</span>
+							<span class="pub-badge">DOI</span>
+						</div>
+						<p class="pub-abstract">
+							Used proximal gradient descent to handle the non-smooth L1 constraints that standard
+							methods struggle with in portfolio optimization. Ran faster on real historical stock
+							data while still respecting those constraints.
+						</p>
+					</div>
+				</section>
+
+				<!-- Patent -->
+				<section class="section">
+					<p class="section-label">Patents</p>
+
+					<div class="patent">
+						<h2 class="patent-title">
+							Hands-Free Multimodal Human-Computer Interaction System and Method Based on Vision
+							and Speech Processing
+						</h2>
+						<div class="patent-meta">
+							<span>Application No. 202641053085</span>
+							<span>Filed Apr 2026 · Office of the Controller General of Patents, Designs &amp; Trade Marks, India</span>
+						</div>
+						<p class="patent-desc">
+							A system for controlling computers through combined vision and speech inputs,
+							removing the need for physical peripherals. Designed for accessibility and
+							hands-free environments.
+						</p>
+					</div>
+				</section>
+
+				<!-- Academic Work -->
+				<section class="section">
+					<p class="section-label">Academic Work</p>
+
+					<div class="project">
+						<h2 class="project-title">
+							Multi-Tier Immune-Based Adaptive Defence Model for DDoS Detection
+						</h2>
+						<div class="project-date">Oct 2025</div>
+						<p class="project-desc">
+							Modeled defense layers on the human immune system — rule-based filters catch the
+							obvious traffic, entropy detection flags anomalies, then CNN-LSTM/BiLSTM classifiers
+							and a LightGBM-autoencoder hybrid handle what's left. A genetic algorithm tunes
+							hyperparameters, and the memory layer adapts to new attack patterns without needing
+							a full retrain each time.
+						</p>
+						<div class="project-stack">
+							<span class="tag">CNN-LSTM</span>
+							<span class="tag">BiLSTM</span>
+							<span class="tag">LightGBM</span>
+							<span class="tag">Genetic Algorithms</span>
+							<span class="tag">Python</span>
+						</div>
+					</div>
+				</section>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

@@ -1,0 +1,24 @@
+name: Update README with latest blog posts
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: s3ak6i-dev/s3ak6i-dev
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch RSS and update README
+        uses: gautamkrishnar/blog-post-workflow@v1
+        with:
+          feed_list: "https://s3ak6i-dev.github.io/rss.xml"
+          max_post_count: 5
+          readme_path: README.md
+          comment_tag_name: BLOG-POST-LIST
+          template: "[$title]($url) — $date"

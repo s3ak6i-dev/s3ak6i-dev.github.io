@@ -1,0 +1,132 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'blog'>['data'] & { body?: string };
+
+const { title, description, pubDate, updatedDate, heroImage, body } = Astro.props;
+
+const wordCount = body ? body.split(/\s+/).filter(Boolean).length : 0;
+const readingTime = Math.ceil(wordCount / 200) || 1;
+
+const formattedDate = pubDate.toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
+
+const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			.prose {
+				width: 720px;
+				max-width: calc(100% - 2rem);
+				margin: 0 auto;
+				padding: 3rem 1rem 4rem;
+			}
+
+			.post-header {
+				margin-bottom: 2rem;
+			}
+
+			.post-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 2.5rem;
+				font-weight: 700;
+				color: var(--text);
+				line-height: 1.15;
+				margin: 0 0 1rem 0;
+			}
+
+			.post-meta {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 14px;
+				color: var(--text-muted);
+				flex-wrap: wrap;
+			}
+
+			.post-meta span::before {
+				content: '·';
+				margin-right: 1rem;
+			}
+
+			.post-meta span:first-child::before {
+				content: none;
+			}
+
+			.last-updated {
+				display: block;
+				font-style: italic;
+				color: var(--text-muted);
+				font-family: inherit;
+				font-size: 14px;
+				margin-top: 0.5rem;
+			}
+
+			.divider {
+				border: none;
+				border-top: 1px solid var(--border);
+				margin: 1.5rem 0 2rem;
+			}
+
+			.hero-image {
+				margin-bottom: 2rem;
+			}
+
+			.hero-image img {
+				width: 100%;
+				height: auto;
+				border-radius: 6px;
+			}
+
+			@media (max-width: 640px) {
+				.post-title {
+					font-size: 1.875rem;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<Header />
+		<main style="padding: 0; max-width: 100%; width: 100%;">
+			<article>
+				<div class="prose">
+					<div class="post-header">
+						<h1 class="post-title">{title}</h1>
+						<div class="post-meta">
+							<span>{formattedDate}</span>
+							<span>{readingTime} min read</span>
+						</div>
+						{updatedDate && (
+							<span class="last-updated">Last updated on {formattedUpdated}</span>
+						)}
+					</div>
+
+					{heroImage && (
+						<div class="hero-image">
+							<img src={heroImage} alt="" width="720" height="360" />
+						</div>
+					)}
+
+					<hr class="divider" />
+					<slot />
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>
