@@ -7,63 +7,6 @@
     <title>CMS · Surya Krishna</title>
   </head>
   <body>
-    <script>
-      window.CMS_MANUAL_INIT = true;
-
-      function onCMSLoaded() {
-        CMS.init({
-          config: {
-            backend: {
-              name: 'github',
-              repo: 's3ak6i-dev/s3ak6i-dev.github.io',
-              branch: 'main',
-              auth_type: 'pkce',
-              app_id: 'Ov23li2RkHijA8W2tqh2',
-            },
-            media_folder: 'public/images',
-            public_folder: '/images',
-            collections: [
-              {
-                name: 'blog',
-                label: 'Blog Posts',
-                folder: 'src/content/blog',
-                create: true,
-                delete: true,
-                slug: '{{slug}}',
-                extension: 'md',
-                format: 'frontmatter',
-                fields: [
-                  { label: 'Title', name: 'title', widget: 'string' },
-                  { label: 'Description', name: 'description', widget: 'string' },
-                  {
-                    label: 'Publish Date',
-                    name: 'pubDate',
-                    widget: 'datetime',
-                    date_format: 'YYYY-MM-DD',
-                    time_format: false,
-                    picker_utc: true,
-                  },
-                  {
-                    label: 'Updated Date',
-                    name: 'updatedDate',
-                    widget: 'datetime',
-                    date_format: 'YYYY-MM-DD',
-                    time_format: false,
-                    picker_utc: true,
-                    required: false,
-                  },
-                  { label: 'Body', name: 'body', widget: 'markdown' },
-                ],
-              },
-            ],
-          },
-        });
-      }
-    </script>
-
-    <script
-      src="https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js"
-      onload="onCMSLoaded()"
-    ></script>
+    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>
