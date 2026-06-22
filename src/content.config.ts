@@ -31,6 +31,25 @@ const now = defineCollection({
 	loader: glob({ base: './src/content/now', pattern: '**/*.{md,mdx}' }),
 	schema: z.object({
 		updatedDate: z.coerce.date(),
+		workingOn: z.array(z.object({
+			title: z.string(),
+			description: z.string(),
+			link: z.string().optional(),
+		})).default([]),
+		reading: z.array(z.object({
+			title: z.string(),
+			author: z.string().optional(),
+			type: z.enum(['book', 'paper', 'article']).default('book'),
+			note: z.string().optional(),
+		})).default([]),
+		thinkingAbout: z.array(z.object({
+			question: z.string(),
+			context: z.string().optional(),
+		})).default([]),
+		extracurriculars: z.array(z.object({
+			activity: z.string(),
+			description: z.string(),
+		})).default([]),
 	}),
 });
 
