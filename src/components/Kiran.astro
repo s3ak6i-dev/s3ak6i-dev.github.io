@@ -1,0 +1,256 @@
+---
+---
+
+<div class="kiran-wrap" id="kiran-wrap">
+  <svg id="kiran-svg" viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg" aria-label="KIRAN — interactive robot mascot">
+    <defs>
+      <filter id="glow-orange" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <clipPath id="visor-clip">
+        <rect x="152" y="130" width="96" height="36" rx="3"/>
+      </clipPath>
+      <linearGradient id="chest-fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="50%" stop-color="#0D0D0D" stop-opacity="1"/>
+        <stop offset="100%" stop-color="#0D0D0D" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Antenna -->
+    <line x1="200" y1="74" x2="200" y2="42" stroke="#2a2a2a" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="200" cy="33" r="10" fill="#E8602C" filter="url(#glow-orange)"/>
+    <circle cx="200" cy="33" r="6" fill="#FF8040"/>
+
+    <!-- HEAD GROUP -->
+    <g id="kiran-head" style="transform-origin: 200px 135px;">
+
+      <!-- Main head -->
+      <path d="M148,78 L170,68 L230,68 L252,78 L266,112 L266,178 L252,194 L230,204 L170,204 L148,194 L134,178 L134,112 Z"
+            fill="#141414" stroke="#252525" stroke-width="1.5"/>
+
+      <!-- Top forehead panel -->
+      <path d="M170,68 L230,68 L244,80 L156,80 Z" fill="#1c1c1c" stroke="#2a2a2a" stroke-width="1"/>
+
+      <!-- Vent slots -->
+      <rect x="180" y="83" width="40" height="8" rx="1.5" fill="#0a0a0a"/>
+      <line x1="185" y1="84" x2="185" y2="90" stroke="#333" stroke-width="1.5"/>
+      <line x1="191" y1="84" x2="191" y2="90" stroke="#333" stroke-width="1.5"/>
+      <line x1="197" y1="84" x2="197" y2="90" stroke="#333" stroke-width="1.5"/>
+      <line x1="203" y1="84" x2="203" y2="90" stroke="#333" stroke-width="1.5"/>
+      <line x1="209" y1="84" x2="209" y2="90" stroke="#333" stroke-width="1.5"/>
+      <line x1="215" y1="84" x2="215" y2="90" stroke="#333" stroke-width="1.5"/>
+
+      <!-- Side ear plates -->
+      <path d="M134,116 L148,110 L148,160 L134,154 Z" fill="#1a1a1a" stroke="#252525" stroke-width="1"/>
+      <line x1="139" y1="120" x2="139" y2="150" stroke="#E8602C" stroke-width="1.5" opacity="0.5"/>
+      <path d="M266,116 L252,110 L252,160 L266,154 Z" fill="#1a1a1a" stroke="#252525" stroke-width="1"/>
+      <line x1="261" y1="120" x2="261" y2="150" stroke="#E8602C" stroke-width="1.5" opacity="0.5"/>
+
+      <!-- Circuit traces -->
+      <path d="M148,128 L140,122 L136,110" stroke="#E8602C" stroke-width="1" fill="none" opacity="0.45"/>
+      <circle cx="136" cy="108" r="2.5" fill="#E8602C" opacity="0.6"/>
+      <path d="M252,128 L260,122 L264,110" stroke="#E8602C" stroke-width="1" fill="none" opacity="0.45"/>
+      <circle cx="264" cy="108" r="2.5" fill="#E8602C" opacity="0.6"/>
+
+      <!-- Visor housing -->
+      <rect x="142" y="124" width="116" height="50" rx="6" fill="#090909" stroke="#1e1e1e" stroke-width="1.5"/>
+      <rect x="142" y="124" width="116" height="50" rx="6" fill="none" stroke="#E8602C" stroke-width="1.5" opacity="0.7"/>
+
+      <!-- Visor side bars -->
+      <rect x="142" y="124" width="9" height="50" rx="3" fill="#E8602C" opacity="0.8"/>
+      <rect x="249" y="124" width="9" height="50" rx="3" fill="#E8602C" opacity="0.8"/>
+
+      <!-- VISOR INNER — follows cursor -->
+      <g id="visor-inner">
+        <!-- Base glow -->
+        <rect id="visor-base" x="153" y="130" width="94" height="38" rx="3" fill="#B84010"/>
+        <!-- Bright glow -->
+        <rect id="visor-glow" x="153" y="130" width="94" height="38" rx="3" fill="#E8602C" opacity="0.85" filter="url(#glow-soft)"/>
+        <!-- Scan lines -->
+        <g clip-path="url(#visor-clip)" opacity="0.25">
+          <line x1="152" y1="134" x2="248" y2="134" stroke="#FFB080" stroke-width="1"/>
+          <line x1="152" y1="138" x2="248" y2="138" stroke="#FFB080" stroke-width="1"/>
+          <line x1="152" y1="142" x2="248" y2="142" stroke="#FFB080" stroke-width="1"/>
+          <line x1="152" y1="146" x2="248" y2="146" stroke="#FFB080" stroke-width="1"/>
+          <line x1="152" y1="150" x2="248" y2="150" stroke="#FFB080" stroke-width="1"/>
+          <line x1="152" y1="154" x2="248" y2="154" stroke="#FFB080" stroke-width="1"/>
+          <line x1="152" y1="158" x2="248" y2="158" stroke="#FFB080" stroke-width="1"/>
+          <line x1="152" y1="162" x2="248" y2="162" stroke="#FFB080" stroke-width="1"/>
+        </g>
+        <!-- Highlight reflection -->
+        <rect x="165" y="132" width="68" height="7" rx="2" fill="#FF9050" opacity="0.3"/>
+      </g>
+
+      <!-- Chin -->
+      <path d="M170,198 L200,206 L230,198" stroke="#252525" stroke-width="1.5" fill="none"/>
+      <path d="M176,198 L200,204 L224,198" fill="#1a1a1a"/>
+    </g>
+
+    <!-- Neck -->
+    <rect x="183" y="202" width="34" height="22" rx="4" fill="#141414" stroke="#252525" stroke-width="1"/>
+    <line x1="191" y1="204" x2="191" y2="222" stroke="#2e2e2e" stroke-width="1.5"/>
+    <line x1="200" y1="204" x2="200" y2="222" stroke="#2e2e2e" stroke-width="1.5"/>
+    <line x1="209" y1="204" x2="209" y2="222" stroke="#2e2e2e" stroke-width="1.5"/>
+
+    <!-- Chest plate -->
+    <path d="M108,222 L292,222 L306,268 L284,332 L116,332 L94,268 Z" fill="#141414" stroke="#252525" stroke-width="1.5"/>
+
+    <!-- Chest center panel -->
+    <path d="M162,234 L238,234 L250,270 L200,288 L150,270 Z" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+
+    <!-- Chest orange lines -->
+    <line x1="165" y1="238" x2="235" y2="238" stroke="#E8602C" stroke-width="2" opacity="0.8"/>
+    <line x1="157" y1="250" x2="243" y2="250" stroke="#E8602C" stroke-width="1.5" opacity="0.45"/>
+
+    <!-- Chest core -->
+    <circle cx="200" cy="272" r="15" fill="#0D0D0D" stroke="#E8602C" stroke-width="1.5" opacity="0.8"/>
+    <circle cx="200" cy="272" r="9" fill="#E8602C" opacity="0.4" filter="url(#glow-soft)"/>
+    <circle cx="200" cy="272" r="5" fill="#FF8040" opacity="0.9"/>
+
+    <!-- Left shoulder -->
+    <path d="M80,228 L108,222 L115,260 L103,294 L77,286 L65,254 Z" fill="#1a1a1a" stroke="#252525" stroke-width="1.5"/>
+    <line x1="83" y1="240" x2="108" y2="234" stroke="#E8602C" stroke-width="1.5" opacity="0.7"/>
+    <line x1="81" y1="253" x2="106" y2="247" stroke="#E8602C" stroke-width="1" opacity="0.4"/>
+
+    <!-- Right shoulder -->
+    <path d="M320,228 L292,222 L285,260 L297,294 L323,286 L335,254 Z" fill="#1a1a1a" stroke="#252525" stroke-width="1.5"/>
+    <line x1="317" y1="240" x2="292" y2="234" stroke="#E8602C" stroke-width="1.5" opacity="0.7"/>
+    <line x1="319" y1="253" x2="294" y2="247" stroke="#E8602C" stroke-width="1" opacity="0.4"/>
+
+    <!-- Chest side trim -->
+    <line x1="108" y1="230" x2="100" y2="270" stroke="#E8602C" stroke-width="2" opacity="0.55"/>
+    <line x1="292" y1="230" x2="300" y2="270" stroke="#E8602C" stroke-width="2" opacity="0.55"/>
+
+    <!-- Fade out -->
+    <rect x="55" y="292" width="290" height="70" fill="url(#chest-fade)"/>
+  </svg>
+
+  <p class="kiran-hint" id="kiran-hint">click to change mood</p>
+</div>
+
+<style>
+  .kiran-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  #kiran-svg {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 24px rgba(232, 96, 44, 0.12));
+    transition: filter 0.4s ease;
+  }
+
+  #kiran-svg:hover {
+    filter: drop-shadow(0 0 40px rgba(232, 96, 44, 0.22));
+  }
+
+  #visor-inner {
+    transition: transform 0.08s ease-out;
+  }
+
+  #kiran-head {
+    transition: transform 0.12s ease-out;
+  }
+
+  .kiran-hint {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    opacity: 0.4;
+    margin-top: 0.5rem;
+    transition: opacity 0.3s;
+  }
+
+  .kiran-wrap:hover .kiran-hint {
+    opacity: 0.7;
+  }
+</style>
+
+<script is:inline>
+(function () {
+  const svg = document.getElementById('kiran-svg');
+  const head = document.getElementById('kiran-head');
+  const visorInner = document.getElementById('visor-inner');
+  const visorGlow = document.getElementById('visor-glow');
+  const hint = document.getElementById('kiran-hint');
+
+  // --- Cursor follow ---
+  document.addEventListener('mousemove', function (e) {
+    const rect = svg.getBoundingClientRect();
+    const centerX = rect.left + rect.width * 0.5;
+    const centerY = rect.top + rect.height * 0.36;
+
+    const dx = (e.clientX - centerX) / (rect.width * 0.5);
+    const dy = (e.clientY - centerY) / (rect.height * 0.5);
+
+    const mx = Math.max(-1, Math.min(1, dx));
+    const my = Math.max(-1, Math.min(1, dy));
+
+    visorInner.style.transform = 'translate(' + (mx * 7) + 'px, ' + (my * 4) + 'px)';
+    head.style.transform = 'rotate(' + (mx * 4) + 'deg) translateY(' + (my * 2) + 'px)';
+  });
+
+  // --- Expression states ---
+  const expressions = [
+    {
+      name: 'idle',
+      hint: 'click to change mood',
+      visorColor: '#E8602C',
+      visorOpacity: '0.85',
+      glowColor: '#B84010',
+    },
+    {
+      name: 'happy',
+      hint: '( ˘ ³˘) happy',
+      visorColor: '#FF9040',
+      visorOpacity: '1',
+      glowColor: '#E05010',
+    },
+    {
+      name: 'thinking',
+      hint: '( ¬_¬) processing...',
+      visorColor: '#883010',
+      visorOpacity: '0.5',
+      glowColor: '#551A00',
+    },
+    {
+      name: 'surprised',
+      hint: '(O_O) !!',
+      visorColor: '#FFA060',
+      visorOpacity: '1',
+      glowColor: '#E86020',
+    },
+  ];
+
+  let current = 0;
+
+  svg.addEventListener('click', function () {
+    current = (current + 1) % expressions.length;
+    const expr = expressions[current];
+
+    visorGlow.setAttribute('fill', expr.visorColor);
+    visorGlow.setAttribute('opacity', expr.visorOpacity);
+    document.getElementById('visor-base').setAttribute('fill', expr.glowColor);
+
+    hint.textContent = expr.hint;
+
+    // Flash
+    svg.style.filter = 'drop-shadow(0 0 60px rgba(232, 96, 44, 0.55))';
+    setTimeout(function () {
+      svg.style.filter = 'drop-shadow(0 0 24px rgba(232, 96, 44, 0.12))';
+    }, 350);
+  });
+})();
+</script>

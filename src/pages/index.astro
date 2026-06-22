@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import Kiran from '../components/Kiran.astro';
 import { GITHUB_URL, LINKEDIN_URL, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 const posts = (await getCollection('blog'))
@@ -25,6 +26,14 @@ const posts = (await getCollection('blog'))
 			/* Hero */
 			.hero {
 				margin-bottom: 5rem;
+				display: flex;
+				align-items: center;
+				gap: 3rem;
+			}
+
+			.hero-text {
+				flex: 1;
+				min-width: 0;
 			}
 
 			.hero-greeting {
@@ -58,6 +67,13 @@ const posts = (await getCollection('blog'))
 
 			.hero-ctas a:hover {
 				color: var(--accent-dim);
+			}
+
+			@media (max-width: 720px) {
+				.hero {
+					flex-direction: column-reverse;
+					gap: 2rem;
+				}
 			}
 
 			/* Sections */
@@ -200,12 +216,15 @@ const posts = (await getCollection('blog'))
 			<div class="home">
 				<!-- Hero -->
 				<section class="hero">
-					<h1 class="hero-greeting">Hey, I'm Surya.</h1>
-					<p class="hero-sub">AI Engineer. I think about how constrained systems coordinate under uncertainty.</p>
-					<div class="hero-ctas">
-						<a href="/blog">Read the blog →</a>
-						<a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">View GitHub →</a>
+					<div class="hero-text">
+						<h1 class="hero-greeting">Hey, I'm Surya.</h1>
+						<p class="hero-sub">AI Engineer. I think about how constrained systems coordinate under uncertainty.</p>
+						<div class="hero-ctas">
+							<a href="/blog">Read the blog →</a>
+							<a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">View GitHub →</a>
+						</div>
 					</div>
+					<Kiran />
 				</section>
 
 				<!-- Recent Writing -->
