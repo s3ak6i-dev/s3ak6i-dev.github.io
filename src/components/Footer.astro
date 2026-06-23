@@ -3,6 +3,7 @@ import { GITHUB_URL, LINKEDIN_URL } from '../consts';
 ---
 
 <footer>
+	<a href="https://app.contentful.com/spaces/7hmiypek44tg" target="_blank" rel="noopener noreferrer" class="cms-ghost" aria-hidden="true" tabindex="-1"></a>
 	<div class="footer-inner">
 		<span class="copy">&copy; 2025 Surya Krishna</span>
 
@@ -80,6 +81,17 @@ import { GITHUB_URL, LINKEDIN_URL } from '../consts';
 
 	.social-links a:hover {
 		color: var(--text);
+	}
+
+	.cms-ghost {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 24px;
+		height: 24px;
+		opacity: 0;
+		z-index: 9999;
+		cursor: default;
 	}
 
 	@media (max-width: 640px) {
