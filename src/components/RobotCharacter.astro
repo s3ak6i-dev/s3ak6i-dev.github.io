@@ -1,0 +1,300 @@
+---
+---
+
+<div class="rc-wrap" id="rc-wrap">
+  <div class="rc-stage" id="rc-stage">
+    <!-- Render order: legs → arms → torso → head (back to front) -->
+    <img class="rp rp-left-leg"  id="rp-left-leg"  src="/robot/Robot_Right_Leg-removebg-preview.png" alt="" draggable="false" />
+    <img class="rp rp-right-leg" id="rp-right-leg" src="/robot/Robot_Left_Leg-removebg-preview.png"  alt="" draggable="false" />
+    <img class="rp rp-left-arm"  id="rp-left-arm"  src="/robot/Robot_left_arm-removebg-preview.png"  alt="" draggable="false" />
+    <img class="rp rp-right-arm" id="rp-right-arm" src="/robot/Robot_Righ_Arm-removebg-preview.png"  alt="" draggable="false" />
+    <img class="rp rp-torso"     id="rp-torso"     src="/robot/Robot_Torso-removebg-preview.png"     alt="" draggable="false" />
+    <img class="rp rp-head"      id="rp-head"      src="/robot/Robot_head-removebg-preview.png"      alt="" draggable="false" />
+  </div>
+  <p class="rc-hint" id="rc-hint">click to interact</p>
+</div>
+
+<style>
+  .rc-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .rc-stage {
+    position: relative;
+    width: 320px;
+    height: 520px;
+    margin: 0 auto;
+  }
+
+  .rp {
+    position: absolute;
+    pointer-events: none;
+    image-rendering: auto;
+  }
+
+  /* ── Positions ────────────────────────────────────── */
+  /* Head: centered, reference size */
+  .rp-head {
+    width: 152px;
+    left: 84px;   /* (320-152)/2 */
+    top: 0px;
+    transform-origin: 50% 88%;
+    z-index: 5;
+  }
+
+  /* Torso: centered, reference size */
+  .rp-torso {
+    width: 210px;
+    left: 55px;   /* (320-210)/2 */
+    top: 118px;
+    transform-origin: 50% 0%;
+    z-index: 3;
+  }
+
+  /* Arms: socket-aligned to torso shoulder joints */
+  .rp-left-arm {
+    width: 136px;
+    left: -18px;  /* 74 - 0.68×136 = socket lands on torso left joint */
+    top: 170px;   /* 181 - 0.08×136 */
+    transform-origin: 68% 8%;
+    z-index: 2;
+  }
+
+  .rp-right-arm {
+    width: 136px;
+    left: 202px;  /* 246 - 0.32×136 = socket lands on torso right joint */
+    top: 170px;
+    transform-origin: 32% 8%;
+    z-index: 2;
+  }
+
+  /* Legs: enlarged, hip aligned to bottom of torso */
+  .rp-left-leg {
+    width: 124px;
+    left: 46px;   /* under left half of torso */
+    top: 308px;
+    transform-origin: 50% 0%;
+    z-index: 1;
+  }
+
+  .rp-right-leg {
+    width: 124px;
+    left: 152px;  /* under right half of torso */
+    top: 308px;
+    transform-origin: 50% 0%;
+    z-index: 1;
+  }
+
+  .rc-hint {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    opacity: 0.35;
+    margin-top: 0.5rem;
+    transition: opacity 0.3s;
+  }
+
+  .rc-wrap:hover .rc-hint {
+    opacity: 0.65;
+  }
+</style>
+
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<script is:inline>
+(function () {
+  var stage    = document.getElementById('rc-stage');
+  var head     = document.getElementById('rp-head');
+  var torso    = document.getElementById('rp-torso');
+  var leftArm  = document.getElementById('rp-left-arm');
+  var rightArm = document.getElementById('rp-right-arm');
+  var leftLeg  = document.getElementById('rp-left-leg');
+  var rightLeg = document.getElementById('rp-right-leg');
+  var hint     = document.getElementById('rc-hint');
+  var wrap     = document.getElementById('rc-wrap');
+
+  if (!stage || typeof gsap === 'undefined') return;
+
+  // ── Idle animations ────────────────────────────────
+
+  // Whole character floats
+  gsap.to(stage, {
+    y: -8,
+    duration: 3.2,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+  });
+
+  // Torso breathe
+  gsap.to(torso, {
+    scaleY: 1.025,
+    scaleX: 0.98,
+    duration: 2.2,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+  });
+
+  // Head bobs slightly with breathe
+  gsap.to(head, {
+    y: -3,
+    duration: 2.2,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+  });
+
+  // Arms swing opposite phase
+  gsap.to(leftArm, {
+    rotation: 6,
+    duration: 3.8,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+    delay: 0,
+  });
+  gsap.to(rightArm, {
+    rotation: -6,
+    duration: 3.8,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+    delay: 0,
+  });
+
+  // Legs shift subtly (weight shift)
+  gsap.to(leftLeg, {
+    rotation: 2,
+    y: 2,
+    duration: 3.2,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+    delay: 0.3,
+  });
+  gsap.to(rightLeg, {
+    rotation: -2,
+    y: 2,
+    duration: 3.2,
+    ease: 'sine.inOut',
+    repeat: -1,
+    yoyo: true,
+    delay: 0.6,
+  });
+
+  // ── Cursor tracking ────────────────────────────────
+
+  var targetHeadRx = 0, targetHeadRy = 0;
+  var currentHeadRx = 0, currentHeadRy = 0;
+
+  document.addEventListener('mousemove', function (e) {
+    var rect = stage.getBoundingClientRect();
+    var cx = rect.left + rect.width * 0.5;
+    var cy = rect.top + rect.height * 0.28;
+
+    var dx = (e.clientX - cx) / (rect.width * 0.7);
+    var dy = (e.clientY - cy) / (rect.height * 0.5);
+
+    targetHeadRx = Math.max(-1, Math.min(1, dx)) * 8;
+    targetHeadRy = Math.max(-1, Math.min(1, dy)) * 4;
+  });
+
+  // Smooth lerp on rAF instead of inline mousemove for smoothness
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  (function tick() {
+    currentHeadRx = lerp(currentHeadRx, targetHeadRx, 0.06);
+    currentHeadRy = lerp(currentHeadRy, targetHeadRy, 0.06);
+
+    gsap.set(head, {
+      rotationY: currentHeadRx,
+      rotationX: -currentHeadRy * 0.4,
+      rotationZ: currentHeadRx * 0.35,
+    });
+
+    requestAnimationFrame(tick);
+  })();
+
+  // ── Click expression states ────────────────────────
+
+  var states = [
+    { hint: 'click to interact',   filter: 'screen' },
+    { hint: '⚡ charging...',      filter: 'screen' },
+    { hint: '🎯 locked on',        filter: 'screen' },
+    { hint: '( ˘ ³˘) standby',    filter: 'screen' },
+  ];
+  var stateIdx = 0;
+
+  var expressions = [
+    {
+      hint: 'click to interact',
+      headScale: 1,
+      armL: 6, armR: -6,
+      glow: 'drop-shadow(0 0 12px rgba(232,96,44,0.3))',
+    },
+    {
+      hint: '⚡ charging...',
+      headScale: 1.05,
+      armL: -20, armR: 20,
+      glow: 'drop-shadow(0 0 30px rgba(255,140,60,0.7))',
+    },
+    {
+      hint: '🎯 locked on',
+      headScale: 1,
+      armL: -35, armR: -5,
+      glow: 'drop-shadow(0 0 24px rgba(255,80,20,0.6))',
+    },
+    {
+      hint: '( ˘ ³˘) standby',
+      headScale: 0.97,
+      armL: 14, armR: -14,
+      glow: 'drop-shadow(0 0 8px rgba(232,96,44,0.15))',
+    },
+  ];
+
+  wrap.addEventListener('click', function () {
+    stateIdx = (stateIdx + 1) % expressions.length;
+    var ex = expressions[stateIdx];
+
+    // Flash punch
+    gsap.to(stage, {
+      scale: 1.05,
+      duration: 0.12,
+      ease: 'power2.out',
+      onComplete: function () {
+        gsap.to(stage, { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+      },
+    });
+
+    // Arms shift to new pose (additive to idle)
+    gsap.to(leftArm,  { rotation: ex.armL, duration: 0.45, ease: 'back.out(1.7)' });
+    gsap.to(rightArm, { rotation: ex.armR, duration: 0.45, ease: 'back.out(1.7)' });
+
+    // Head scale pop
+    gsap.to(head, {
+      scale: ex.headScale,
+      duration: 0.3,
+      ease: 'back.out(2)',
+    });
+
+    // Glow
+    stage.style.filter = ex.glow;
+    hint.textContent = ex.hint;
+
+    // Resume idle arms after 2s
+    setTimeout(function () {
+      gsap.to(leftArm,  { rotation: 6,  duration: 1.2, ease: 'sine.inOut' });
+      gsap.to(rightArm, { rotation: -6, duration: 1.2, ease: 'sine.inOut' });
+      gsap.to(head, { scale: 1, duration: 0.5, ease: 'power2.out' });
+    }, 2000);
+  });
+})();
+</script>

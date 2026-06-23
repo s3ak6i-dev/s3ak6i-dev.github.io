@@ -1,14 +1,20 @@
 ---
-import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'] & { body?: string };
+interface Props {
+	title:        string;
+	description:  string;
+	pubDate:      Date;
+	updatedDate?: Date;
+	heroImage?:   string;
+	bodyHtml?:    string;
+}
 
-const { title, description, pubDate, updatedDate, heroImage, body } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, bodyHtml } = Astro.props;
 
-const wordCount = body ? body.split(/\s+/).filter(Boolean).length : 0;
+const wordCount = bodyHtml ? bodyHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length : 0;
 const readingTime = Math.ceil(wordCount / 200) || 1;
 
 const formattedDate = pubDate.toLocaleDateString('en-US', {
@@ -123,7 +129,7 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 					)}
 
 					<hr class="divider" />
-					<slot />
+					{bodyHtml ? <div set:html={bodyHtml} /> : <slot />}
 				</div>
 			</article>
 		</main>

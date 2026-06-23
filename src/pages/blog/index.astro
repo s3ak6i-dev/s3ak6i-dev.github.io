@@ -1,13 +1,11 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
+import { getBlogPosts } from '../../lib/contentful';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const posts = await getBlogPosts();
 ---
 
 <!doctype html>
@@ -140,7 +138,7 @@ const posts = (await getCollection('blog')).sort(
 				<ul class="post-list">
 					{
 						posts.map((post) => {
-							const dateStr = post.data.pubDate.toLocaleDateString('en-US', {
+							const dateStr = new Date(post.pubDate).toLocaleDateString('en-US', {
 								year: 'numeric',
 								month: 'short',
 								day: 'numeric',
@@ -148,9 +146,9 @@ const posts = (await getCollection('blog')).sort(
 							return (
 								<li class="post-item">
 									<div class="post-item-inner">
-										<a href={`/blog/${post.id}/`} class="post-thumb" tabindex="-1" aria-hidden="true">
-											{post.data.heroImage ? (
-												<img src={post.data.heroImage} alt="" />
+										<a href={`/blog/${post.slug}/`} class="post-thumb" tabindex="-1" aria-hidden="true">
+											{post.heroImage ? (
+												<img src={post.heroImage} alt="" />
 											) : (
 												<svg class="post-thumb-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
 													<rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -160,13 +158,13 @@ const posts = (await getCollection('blog')).sort(
 										</a>
 										<div class="post-content">
 											<div class="post-meta-row">
-												<a class="post-title" href={`/blog/${post.id}/`}>
-													{post.data.title}
+												<a class="post-title" href={`/blog/${post.slug}/`}>
+													{post.title}
 												</a>
 												<span class="post-date">{dateStr}</span>
 											</div>
-											{post.data.description && (
-												<p class="post-description">{post.data.description}</p>
+											{post.description && (
+												<p class="post-description">{post.description}</p>
 											)}
 										</div>
 									</div>

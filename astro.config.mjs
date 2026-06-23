@@ -1,11 +1,9 @@
 // @ts-check
 
-import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
-// https://astro.build/config
 export default defineConfig({
-	site: 'https://s3ak6i-dev.github.io',
-	integrations: [mdx(), sitemap()],
+	site: 'https://surya-krishna.vercel.app', // update after first Vercel deploy
+	integrations: [sitemap()],
 });

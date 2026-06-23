@@ -1,0 +1,350 @@
+---
+---
+
+<div id="hs-mount" style="position:absolute;inset:0;width:100%;height:100%;overflow:hidden;"></div>
+
+<script>
+import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect, SMAAPreset } from 'postprocessing';
+import * as THREE from 'three';
+
+const OPTS = {
+  distortion: 'turbulentDistortion',
+  length: 400,
+  roadWidth: 9,
+  islandWidth: 2,
+  lanesPerRoad: 3,
+  fov: 90,
+  fovSpeedUp: 150,
+  speedUp: 2,
+  carLightsFade: 0.4,
+  totalSideLightSticks: 50,
+  lightPairsPerRoadWay: 50,
+  shoulderLinesWidthPercentage: 0.05,
+  brokenLinesWidthPercentage: 0.1,
+  brokenLinesLengthPercentage: 0.5,
+  lightStickWidth: [0.12, 0.5],
+  lightStickHeight: [1.3, 1.7],
+  movingAwaySpeed: [60, 80],
+  movingCloserSpeed: [-120, -160],
+  carLightsLength: [20, 60],
+  carLightsRadius: [0.05, 0.14],
+  carWidthPercentage: [0.3, 0.5],
+  carShiftX: [-0.2, 0.2],
+  carFloorSeparation: [0.05, 1],
+  colors: {
+    roadColor:    0x080808,
+    islandColor:  0x0a0a0a,
+    background:   0x000000,
+    shoulderLines: 0x131318,
+    brokenLines:  0x131318,
+    leftCars:  [0xDC5B20, 0xDCA320, 0xDC2020],
+    rightCars: [0x334BF7, 0xE5AFED, 0xBFBCF3],
+    sticks:    0xC5E8EB,
+  },
+};
+
+// helpers
+function rand(base) {
+  return Array.isArray(base) ? Math.random()*(base[1]-base[0])+base[0] : Math.random()*base;
+}
+function pick(arr) {
+  return Array.isArray(arr) ? arr[Math.floor(Math.random()*arr.length)] : arr;
+}
+function lerp(cur, tgt, speed, limit) {
+  speed = speed ?? 0.1; limit = limit ?? 0.001;
+  let ch = (tgt - cur) * speed;
+  if (Math.abs(ch) < limit) ch = tgt - cur;
+  return ch;
+}
+const nsin = v => Math.sin(v)*0.5+0.5;
+
+// distortion
+const turbUniforms = {
+  uFreq: { value: new THREE.Vector4(4, 8, 8, 1) },
+  uAmp:  { value: new THREE.Vector4(25, 5, 10, 10) },
+};
+
+const DISTORTIONS = {
+  turbulentDistortion: {
+    uniforms: turbUniforms,
+    getDistortion: `
+      uniform vec4 uFreq; uniform vec4 uAmp;
+      float nsin(float v){ return sin(v)*0.5+0.5; }
+      #define PI 3.14159265358979
+      float dx(float p){ return cos(PI*p*uFreq.r+uTime)*uAmp.r+pow(cos(PI*p*uFreq.g+uTime*(uFreq.g/uFreq.r)),2.)*uAmp.g; }
+      float dy(float p){ return -nsin(PI*p*uFreq.b+uTime)*uAmp.b+-pow(nsin(PI*p*uFreq.a+uTime/(uFreq.b/uFreq.a)),5.)*uAmp.a; }
+      vec3 getDistortion(float progress){ return vec3(dx(progress)-dx(0.0125),dy(progress)-dy(0.0125),0.); }`,
+    getJS(progress, time) {
+      const f = turbUniforms.uFreq.value, a = turbUniforms.uAmp.value;
+      const gx = p => Math.cos(Math.PI*p*f.x+time)*a.x + Math.pow(Math.cos(Math.PI*p*f.y+time*(f.y/f.x)),2)*a.y;
+      const gy = p => -nsin(Math.PI*p*f.z+time)*a.z - Math.pow(nsin(Math.PI*p*f.w+time/(f.z/f.w)),5)*a.w;
+      return new THREE.Vector3(gx(progress)-gx(progress+0.007), gy(progress)-gy(progress+0.007), 0)
+        .multiply(new THREE.Vector3(-2,-5,0)).add(new THREE.Vector3(0,0,-10));
+    },
+  },
+};
+
+// shaders
+const FOG_V = THREE.ShaderChunk['fog_pars_vertex'];
+const FOG_F = THREE.ShaderChunk['fog_pars_fragment'];
+const FOG_VERT = THREE.ShaderChunk['fog_vertex'];
+const FOG_FRAG = THREE.ShaderChunk['fog_fragment'];
+
+const carLightsFrag = `
+  #define USE_FOG; ${FOG_F}
+  varying vec3 vColor; varying vec2 vUv; uniform vec2 uFade;
+  void main(){
+    float alpha=smoothstep(uFade.x,uFade.y,vUv.x);
+    gl_FragColor=vec4(vColor,alpha);
+    if(gl_FragColor.a<0.0001) discard;
+    ${FOG_FRAG}
+  }`;
+const carLightsVert = `
+  #define USE_FOG; ${FOG_V}
+  attribute vec3 aOffset,aMetrics,aColor;
+  uniform float uTravelLength,uTime;
+  varying vec2 vUv; varying vec3 vColor;
+  #include <getDistortion_vertex>
+  void main(){
+    vec3 t=position.xyz;
+    t.xy*=aMetrics.r; t.z*=aMetrics.g;
+    t.z+=aMetrics.g-mod(uTime*aMetrics.b+aOffset.z,uTravelLength);
+    t.xy+=aOffset.xy;
+    t.xyz+=getDistortion(abs(t.z/uTravelLength));
+    vec4 mv=modelViewMatrix*vec4(t,1.);
+    gl_Position=projectionMatrix*mv; vUv=uv; vColor=aColor;
+    ${FOG_VERT}
+  }`;
+
+const sideSticksFrag = `
+  #define USE_FOG; ${FOG_F}
+  varying vec3 vColor;
+  void main(){ gl_FragColor=vec4(vColor,1.); ${FOG_FRAG} }`;
+const sideSticksVert = `
+  #define USE_FOG; ${FOG_V}
+  attribute float aOffset; attribute vec3 aColor; attribute vec2 aMetrics;
+  uniform float uTravelLength,uTime; varying vec3 vColor;
+  mat4 rotY(float a){ return mat4(cos(a),0,sin(a),0,0,1,0,0,-sin(a),0,cos(a),0,0,0,0,1); }
+  #include <getDistortion_vertex>
+  void main(){
+    vec3 t=position.xyz; t.xy*=aMetrics;
+    float tm=mod(uTime*120.+aOffset,uTravelLength);
+    t=(rotY(3.14/2.)*vec4(t,1.)).xyz;
+    t.z+=-uTravelLength+tm;
+    t.xyz+=getDistortion(abs(t.z/uTravelLength));
+    t.y+=aMetrics.y/2.; t.x-=aMetrics.x/2.;
+    gl_Position=projectionMatrix*modelViewMatrix*vec4(t,1.); vColor=aColor;
+    ${FOG_VERT}
+  }`;
+
+const roadMarkVars = `
+  uniform float uLanes; uniform vec3 uBrokenLinesColor,uShoulderLinesColor;
+  uniform float uShoulderLinesWidthPercentage,uBrokenLinesWidthPercentage,uBrokenLinesLengthPercentage;`;
+const roadMarkFrag = `
+  uv.y=mod(uv.y+uTime*0.05,1.);
+  float lw=1./uLanes,blw=lw*uBrokenLinesWidthPercentage,les=1.-uBrokenLinesLengthPercentage;
+  float bl=step(1.-blw,fract(uv.x*2.))*step(les,fract(uv.y*10.));
+  float sl=step(1.-blw,fract((uv.x-lw*(uLanes-1.))*2.))+step(blw,uv.x);
+  bl=mix(bl,sl,uv.x);`;
+const roadBaseFrag = `
+  #define USE_FOG; varying vec2 vUv; uniform vec3 uColor; uniform float uTime;
+  #include <roadMarkings_vars> ${FOG_F}
+  void main(){ vec2 uv=vUv; vec3 color=uColor; #include <roadMarkings_fragment> gl_FragColor=vec4(color,1.); ${FOG_FRAG} }`;
+const islandFrag = roadBaseFrag.replace('#include <roadMarkings_fragment>','').replace('#include <roadMarkings_vars>','');
+const roadFrag   = roadBaseFrag.replace('#include <roadMarkings_fragment>',roadMarkFrag).replace('#include <roadMarkings_vars>',roadMarkVars);
+const roadVert   = `
+  #define USE_FOG; uniform float uTime; ${FOG_V}
+  uniform float uTravelLength; varying vec2 vUv;
+  #include <getDistortion_vertex>
+  void main(){
+    vec3 t=position.xyz, d=getDistortion((t.y+uTravelLength/2.)/uTravelLength);
+    t.x+=d.x; t.z+=d.y; t.y-=d.z;
+    gl_Position=projectionMatrix*modelViewMatrix*vec4(t,1.); vUv=uv;
+    ${FOG_VERT}
+  }`;
+
+// ── classes ─────────────────────────────────────────────────────────────────
+function CarLights(webgl, options, colors, speed, fade) {
+  this.webgl = webgl; this.options = options;
+  this.colors = colors; this.speed = speed; this.fade = fade;
+}
+CarLights.prototype.init = function() {
+  const o = this.options;
+  const geo = new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)), 40, 1, 8, false);
+  const inst = new THREE.InstancedBufferGeometry().copy(geo);
+  inst.instanceCount = o.lightPairsPerRoadWay * 2;
+  const lw = o.roadWidth / o.lanesPerRoad;
+  const aO=[], aM=[], aC=[];
+  let cols = Array.isArray(this.colors) ? this.colors.map(c=>new THREE.Color(c)) : new THREE.Color(this.colors);
+  for (let i=0; i<o.lightPairsPerRoadWay; i++) {
+    const r=rand(o.carLightsRadius), l=rand(o.carLightsLength), sp=rand(this.speed);
+    const lane=i%o.lanesPerRoad, lx=lane*lw-o.roadWidth/2+lw/2+rand(o.carShiftX)*lw;
+    const oy=rand(o.carFloorSeparation)+r*1.3, oz=-rand(o.length), cw=rand(o.carWidthPercentage)*lw;
+    aO.push(lx-cw/2,oy,oz, lx+cw/2,oy,oz);
+    aM.push(r,l,sp, r,l,sp);
+    const c=pick(cols); aC.push(c.r,c.g,c.b, c.r,c.g,c.b);
+  }
+  inst.setAttribute('aOffset', new THREE.InstancedBufferAttribute(new Float32Array(aO),3,false));
+  inst.setAttribute('aMetrics',new THREE.InstancedBufferAttribute(new Float32Array(aM),3,false));
+  inst.setAttribute('aColor',  new THREE.InstancedBufferAttribute(new Float32Array(aC),3,false));
+  const mat = new THREE.ShaderMaterial({
+    fragmentShader:carLightsFrag, vertexShader:carLightsVert, transparent:true,
+    uniforms: Object.assign({uTime:{value:0},uTravelLength:{value:o.length},uFade:{value:this.fade}},
+      this.webgl.fogUniforms, o.distortion.uniforms),
+  });
+  mat.onBeforeCompile = s => { s.vertexShader=s.vertexShader.replace('#include <getDistortion_vertex>',o.distortion.getDistortion); };
+  this.mesh = new THREE.Mesh(inst, mat); this.mesh.frustumCulled=false;
+  this.webgl.scene.add(this.mesh);
+};
+CarLights.prototype.update = function(t) { this.mesh.material.uniforms.uTime.value=t; };
+
+function LightsSticks(webgl, options) { this.webgl=webgl; this.options=options; }
+LightsSticks.prototype.init = function() {
+  const o = this.options;
+  const inst = new THREE.InstancedBufferGeometry().copy(new THREE.PlaneGeometry(1,1));
+  inst.instanceCount = o.totalSideLightSticks;
+  const step = o.length/(o.totalSideLightSticks-1);
+  const aO=[], aC=[], aM=[];
+  let cols = Array.isArray(o.colors.sticks) ? o.colors.sticks.map(c=>new THREE.Color(c)) : new THREE.Color(o.colors.sticks);
+  for (let i=0; i<o.totalSideLightSticks; i++) {
+    aO.push((i-1)*step*2+step*Math.random());
+    const c=pick(cols); aC.push(c.r,c.g,c.b);
+    aM.push(rand(o.lightStickWidth),rand(o.lightStickHeight));
+  }
+  inst.setAttribute('aOffset', new THREE.InstancedBufferAttribute(new Float32Array(aO),1,false));
+  inst.setAttribute('aColor',  new THREE.InstancedBufferAttribute(new Float32Array(aC),3,false));
+  inst.setAttribute('aMetrics',new THREE.InstancedBufferAttribute(new Float32Array(aM),2,false));
+  const mat = new THREE.ShaderMaterial({
+    fragmentShader:sideSticksFrag, vertexShader:sideSticksVert, side:THREE.DoubleSide,
+    uniforms: Object.assign({uTravelLength:{value:o.length},uTime:{value:0}},
+      this.webgl.fogUniforms, o.distortion.uniforms),
+  });
+  mat.onBeforeCompile = s => { s.vertexShader=s.vertexShader.replace('#include <getDistortion_vertex>',o.distortion.getDistortion); };
+  this.mesh = new THREE.Mesh(inst,mat); this.mesh.frustumCulled=false;
+  this.webgl.scene.add(this.mesh);
+};
+LightsSticks.prototype.update = function(t) { this.mesh.material.uniforms.uTime.value=t; };
+
+function Road(webgl, options) { this.webgl=webgl; this.options=options; this.uTime={value:0}; }
+Road.prototype.plane = function(side, isRoad) {
+  const o=this.options;
+  const geo=new THREE.PlaneGeometry(isRoad?o.roadWidth:o.islandWidth, o.length, 20, 100);
+  let u = {uTravelLength:{value:o.length},uColor:{value:new THREE.Color(isRoad?o.colors.roadColor:o.colors.islandColor)},uTime:this.uTime};
+  if (isRoad) Object.assign(u, {uLanes:{value:o.lanesPerRoad},uBrokenLinesColor:{value:new THREE.Color(o.colors.brokenLines)},uShoulderLinesColor:{value:new THREE.Color(o.colors.shoulderLines)},uShoulderLinesWidthPercentage:{value:o.shoulderLinesWidthPercentage},uBrokenLinesLengthPercentage:{value:o.brokenLinesLengthPercentage},uBrokenLinesWidthPercentage:{value:o.brokenLinesWidthPercentage}});
+  const mat = new THREE.ShaderMaterial({
+    fragmentShader:isRoad?roadFrag:islandFrag, vertexShader:roadVert, side:THREE.DoubleSide,
+    uniforms:Object.assign(u,this.webgl.fogUniforms,o.distortion.uniforms),
+  });
+  mat.onBeforeCompile = s => { s.vertexShader=s.vertexShader.replace('#include <getDistortion_vertex>',o.distortion.getDistortion); };
+  const m=new THREE.Mesh(geo,mat);
+  m.rotation.x=-Math.PI/2; m.position.z=-o.length/2;
+  m.position.x+=(o.islandWidth/2+o.roadWidth/2)*side;
+  this.webgl.scene.add(m);
+};
+Road.prototype.init   = function() { this.plane(-1,true); this.plane(1,true); this.plane(0,false); };
+Road.prototype.update = function(t) { this.uTime.value=t; };
+
+function App(container, options) {
+  this.options=options; this.container=container; this.disposed=false; this.hasValidSize=false;
+  this.speedUp=0; this.speedUpTarget=0; this.timeOffset=0; this.fovTarget=options.fov;
+
+  const w=Math.max(1,container.offsetWidth), h=Math.max(1,container.offsetHeight);
+  this.renderer=new THREE.WebGLRenderer({antialias:false,alpha:true});
+  this.renderer.setSize(w,h,false); this.renderer.setPixelRatio(window.devicePixelRatio);
+  this.composer=new EffectComposer(this.renderer);
+  container.append(this.renderer.domElement);
+
+  this.camera=new THREE.PerspectiveCamera(options.fov,w/h,0.1,10000);
+  this.camera.position.set(0,8,-5);
+  this.scene=new THREE.Scene(); this.scene.background=null;
+  const fog=new THREE.Fog(options.colors.background,options.length*0.2,options.length*500);
+  this.scene.fog=fog;
+  this.fogUniforms={fogColor:{value:fog.color},fogNear:{value:fog.near},fogFar:{value:fog.far}};
+  this.clock=new THREE.Clock();
+
+  this.road=new Road(this,options);
+  this.leftCars=new CarLights(this,options,options.colors.leftCars,options.movingAwaySpeed,new THREE.Vector2(0,1-options.carLightsFade));
+  this.rightCars=new CarLights(this,options,options.colors.rightCars,options.movingCloserSpeed,new THREE.Vector2(1,options.carLightsFade));
+  this.sticks=new LightsSticks(this,options);
+
+  this.tick=this.tick.bind(this);
+  this.onResize=this.onResize.bind(this);
+  this.onDown=this.onDown.bind(this);
+  this.onUp=this.onUp.bind(this);
+  window.addEventListener('resize',this.onResize);
+  if(w>0&&h>0) this.hasValidSize=true;
+}
+App.prototype.onResize=function(){
+  const w=this.container.offsetWidth,h=this.container.offsetHeight;
+  if(!w||!h){this.hasValidSize=false;return;}
+  this.renderer.setSize(w,h); this.camera.aspect=w/h;
+  this.camera.updateProjectionMatrix(); this.composer.setSize(w,h);
+  this.hasValidSize=true;
+};
+App.prototype.init=function(){
+  const rp=new RenderPass(this.scene,this.camera);
+  const bloom=new EffectPass(this.camera,new BloomEffect({luminanceThreshold:0.2,luminanceSmoothing:0,resolutionScale:1}));
+  const smaa=new EffectPass(this.camera,new SMAAEffect({preset:SMAAPreset.MEDIUM}));
+  rp.renderToScreen=false; bloom.renderToScreen=false; smaa.renderToScreen=true;
+  this.composer.addPass(rp); this.composer.addPass(bloom); this.composer.addPass(smaa);
+
+  const o=this.options;
+  this.road.init();
+  this.leftCars.init(); this.leftCars.mesh.position.setX(-o.roadWidth/2-o.islandWidth/2);
+  this.rightCars.init(); this.rightCars.mesh.position.setX(o.roadWidth/2+o.islandWidth/2);
+  this.sticks.init(); this.sticks.mesh.position.setX(-(o.roadWidth+o.islandWidth/2));
+
+  this.container.addEventListener('mousedown',this.onDown);
+  this.container.addEventListener('mouseup',this.onUp);
+  this.container.addEventListener('mouseout',this.onUp);
+  this.container.addEventListener('touchstart',this.onDown,{passive:true});
+  this.container.addEventListener('touchend',this.onUp,{passive:true});
+  this.tick();
+};
+App.prototype.onDown=function(){ this.fovTarget=this.options.fovSpeedUp; this.speedUpTarget=this.options.speedUp; };
+App.prototype.onUp=function()  { this.fovTarget=this.options.fov; this.speedUpTarget=0; };
+App.prototype.tick=function(){
+  if(this.disposed) return;
+  if(!this.hasValidSize){
+    const w=this.container.offsetWidth,h=this.container.offsetHeight;
+    if(w>0&&h>0){
+      this.renderer.setSize(w,h,false); this.camera.aspect=w/h;
+      this.camera.updateProjectionMatrix(); this.composer.setSize(w,h);
+      this.hasValidSize=true;
+    } else { requestAnimationFrame(this.tick); return; }
+  }
+  const delta=this.clock.getDelta();
+  const lp=Math.exp(-(-60*Math.log2(0.9))*delta);
+  this.speedUp+=lerp(this.speedUp,this.speedUpTarget,lp,0.00001);
+  this.timeOffset+=this.speedUp*delta;
+  const t=this.clock.elapsedTime+this.timeOffset;
+  this.rightCars.update(t); this.leftCars.update(t); this.sticks.update(t); this.road.update(t);
+  const fc=lerp(this.camera.fov,this.fovTarget,lp);
+  if(fc!==0){ this.camera.fov+=fc*delta*6; }
+  if(this.options.distortion.getJS){
+    const d=this.options.distortion.getJS(0.025,t);
+    this.camera.lookAt(this.camera.position.x+d.x,this.camera.position.y+d.y,this.camera.position.z+d.z);
+  }
+  this.camera.updateProjectionMatrix();
+  this.composer.render(delta);
+  requestAnimationFrame(this.tick);
+};
+App.prototype.dispose=function(){
+  this.disposed=true;
+  this.scene?.traverse(o=>{if(!o.isMesh)return;o.geometry?.dispose();[o.material].flat().forEach(m=>m?.dispose());});
+  this.scene?.clear();
+  this.renderer?.dispose(); this.renderer?.forceContextLoss();
+  this.renderer?.domElement?.parentNode?.removeChild(this.renderer.domElement);
+  this.composer?.dispose();
+  window.removeEventListener('resize',this.onResize);
+  ['mousedown','mouseup','mouseout'].forEach(e=>this.container?.removeEventListener(e,e==='mousedown'?this.onDown:this.onUp));
+};
+
+// boot
+const container = document.getElementById('hs-mount');
+if (container) {
+  const app = new App(container, { ...OPTS, distortion: DISTORTIONS[OPTS.distortion] });
+  app.init();
+  window.addEventListener('beforeunload', () => app.dispose(), { once: true });
+}
+</script>

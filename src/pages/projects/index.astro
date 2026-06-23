@@ -1,11 +1,11 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
+import { getProjects } from '../../lib/contentful';
 import { SITE_TITLE } from '../../consts';
 
-const projects = (await getCollection('projects')).sort((a, b) => b.data.year - a.data.year);
+const projects = await getProjects();
 ---
 
 <!doctype html>
@@ -191,10 +191,10 @@ const projects = (await getCollection('projects')).sort((a, b) => b.data.year - 
 
 				<div class="grid">
 					{projects.map((project) => (
-						<a class="card" href={`/projects/${project.id}/`}>
+						<a class="card" href={`/projects/${project.slug}/`}>
 							<div class="card-thumb">
-								{project.data.image ? (
-									<img src={project.data.image} alt={project.data.name} />
+								{project.image ? (
+									<img src={project.image} alt={project.name} />
 								) : (
 									<div class="card-thumb-default">
 										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -207,18 +207,18 @@ const projects = (await getCollection('projects')).sort((a, b) => b.data.year - 
 							</div>
 							<div class="card-body">
 								<div class="card-top">
-									<span class="card-name">{project.data.name}</span>
-									<span class="card-year">{project.data.year}</span>
+									<span class="card-name">{project.name}</span>
+									<span class="card-year">{project.year}</span>
 								</div>
-								<p class="card-desc">{project.data.description}</p>
+								<p class="card-desc">{project.description}</p>
 								<div class="card-footer">
 									<div class="tags">
-										{project.data.stack.slice(0, 3).map((tag) => (
+										{project.stack.slice(0, 3).map((tag) => (
 											<span class="tag">{tag}</span>
 										))}
 									</div>
-									<span class={`status-badge status-${project.data.status}`}>
-										{project.data.status}
+									<span class={`status-badge status-${project.status}`}>
+										{project.status}
 									</span>
 								</div>
 							</div>
