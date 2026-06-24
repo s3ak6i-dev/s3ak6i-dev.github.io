@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>OG Image</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .card {
+    width: 1200px;
+    height: 630px;
+    background: #0D0D0D;
+    border: 1px solid #242424;
+    border-left: 6px solid #E8602C;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 72px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(232,96,44,0.10) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+
+  .top {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .name {
+    font-size: 64px;
+    font-weight: 700;
+    color: #E8E6E1;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .tagline {
+    font-size: 26px;
+    font-weight: 400;
+    color: #7A7775;
+    line-height: 1.4;
+    max-width: 720px;
+  }
+
+  .tagline em {
+    color: #E8602C;
+    font-style: normal;
+  }
+
+  .footer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: #7A7775;
+    letter-spacing: 0.04em;
+  }
+
+  .pills {
+    display: flex;
+    gap: 10px;
+  }
+
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #E8602C;
+    border: 1px solid rgba(232,96,44,0.3);
+    border-radius: 4px;
+    padding: 4px 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="top">
+      <div class="name">Surya Krishna</div>
+      <div class="tagline">AI Engineer — building at the intersection of <em>machine learning</em> and systems.</div>
+    </div>
+    <div class="footer">
+      <div class="url">s3ak6i-dev.github.io</div>
+      <div class="pills">
+        <span class="pill">AI / ML</span>
+        <span class="pill">Systems</span>
+        <span class="pill">Full-Stack</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
