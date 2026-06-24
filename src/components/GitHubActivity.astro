@@ -8,7 +8,7 @@ const GITHUB_USER = 's3ak6i-dev';
   <div class="gh-grid">
     <div class="gh-card">
       <div class="gh-card-header">
-        <span class="gh-card-label">OWN PROJECTS</span>
+        <p class="gh-card-label">OWN PROJECTS</p>
         <span class="gh-dot"></span>
       </div>
       <ul class="gh-feed" id="gh-own-feed">
@@ -22,7 +22,7 @@ const GITHUB_USER = 's3ak6i-dev';
 
     <div class="gh-card">
       <div class="gh-card-header">
-        <span class="gh-card-label">OPEN SOURCE</span>
+        <p class="gh-card-label">OPEN SOURCE</p>
         <span class="gh-dot"></span>
       </div>
       <ul class="gh-feed" id="gh-oss-feed">
@@ -41,10 +41,10 @@ const GITHUB_USER = 's3ak6i-dev';
     margin-top: 3rem;
   }
 
-  /* identical to .card-label — same font, size, spacing, color */
   .gh-section-title {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
+    font-weight: 400;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--accent);
@@ -84,12 +84,15 @@ const GITHUB_USER = 's3ak6i-dev';
     margin-bottom: 1.25rem;
   }
 
+  /* mirrors .card-label in now.astro exactly */
   .gh-card-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
+    font-weight: 400;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--accent);
+    margin: 0;
   }
 
   .gh-dot {
