@@ -9,7 +9,6 @@ interface Props {
 const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 ---
 
-<div class="page-dot-overlay" aria-hidden="true"></div>
 <section class="page-hero">
 	<div class="page-hero-inner">
 		<div class="page-hero-text">
@@ -24,18 +23,30 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 </section>
 
 <style>
-	.page-dot-overlay {
-		position: fixed;
+	.page-hero {
+		background: var(--surface);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.page-hero::before {
+		content: '';
+		position: absolute;
 		inset: 0;
-		background-image: radial-gradient(circle, rgba(232,96,44,0.10) 1.5px, transparent 1.5px);
+		background-image: radial-gradient(circle, rgba(232,96,44,0.10) 1.2px, transparent 1.2px);
 		background-size: 28px 28px;
 		pointer-events: none;
 		z-index: 0;
 	}
 
-	.page-hero {
-		background: var(--surface);
-		border-bottom: 1px solid var(--border);
+	.page-hero::after {
+		content: '';
+		position: absolute;
+		inset: auto 0 0 0;
+		height: 80px;
+		background: linear-gradient(to bottom, transparent, var(--bg));
+		pointer-events: none;
+		z-index: 1;
 	}
 
 	.page-hero-inner {
@@ -46,6 +57,8 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 		align-items: center;
 		justify-content: space-between;
 		gap: 2.5rem;
+		position: relative;
+		z-index: 2;
 	}
 
 	.page-hero-text {
