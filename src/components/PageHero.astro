@@ -10,6 +10,7 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 ---
 
 <section class="page-hero">
+	<canvas class="hero-canvas"></canvas>
 	<div class="page-hero-inner">
 		<div class="page-hero-text">
 			<h1>{title}</h1>
@@ -20,6 +21,7 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 			<img src={gifSrc} alt={gifAlt} />
 		</div>
 	</div>
+	<div class="hero-fade"></div>
 </section>
 
 <style>
@@ -29,22 +31,20 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 		overflow: hidden;
 	}
 
-	.page-hero::before {
-		content: '';
+	.hero-canvas {
 		position: absolute;
 		inset: 0;
-		background-image: radial-gradient(circle, rgba(232,96,44,0.10) 1.2px, transparent 1.2px);
-		background-size: 28px 28px;
-		pointer-events: none;
+		width: 100%;
+		height: 100%;
+		display: block;
 		z-index: 0;
 	}
 
-	.page-hero::after {
-		content: '';
+	.hero-fade {
 		position: absolute;
 		inset: auto 0 0 0;
 		height: 80px;
-		background: linear-gradient(to bottom, transparent, var(--bg));
+		background: linear-gradient(to bottom, transparent, #0d0d0d);
 		pointer-events: none;
 		z-index: 1;
 	}
@@ -107,3 +107,111 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 		}
 	}
 </style>
+
+<script>
+const canvas = document.querySelector('.hero-canvas') as HTMLCanvasElement;
+const ctx = canvas.getContext('2d')!;
+const section = canvas.parentElement!;
+
+let W = 0, H = 0;
+const mouse = { x: -9999, y: -9999, active: false };
+
+const SPACING    = 28;
+const DOT_R      = 1.5;
+const CURSOR_R   = 150;
+const REPEL      = 6;
+const SPRING_K   = 0.10;
+const DAMPING    = 0.70;
+const BASE_ALPHA = 0.10;
+const ACTIVE_ALPHA = 0.80;
+
+type Dot = { hx:number; hy:number; ox:number; oy:number; vx:number; vy:number };
+let dots: Dot[] = [];
+
+function buildGrid() {
+  dots = [];
+  const cols = Math.ceil(W / SPACING) + 2;
+  const rows = Math.ceil(H / SPACING) + 2;
+  const startX = -((cols * SPACING - W) / 2);
+  const startY = -((rows * SPACING - H) / 2);
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      dots.push({ hx: startX + c*SPACING, hy: startY + r*SPACING, ox:0, oy:0, vx:0, vy:0 });
+}
+
+function resize() {
+  W = canvas.width  = section.offsetWidth;
+  H = canvas.height = section.offsetHeight;
+  buildGrid();
+}
+window.addEventListener('resize', resize);
+
+section.addEventListener('mousemove', e => {
+  const r = section.getBoundingClientRect();
+  mouse.x = e.clientX - r.left;
+  mouse.y = e.clientY - r.top;
+  mouse.active = true;
+});
+section.addEventListener('mouseleave', () => { mouse.active = false; });
+
+section.addEventListener('touchmove', e => {
+  const r = section.getBoundingClientRect();
+  mouse.x = e.touches[0].clientX - r.left;
+  mouse.y = e.touches[0].clientY - r.top;
+  mouse.active = true;
+}, { passive: true });
+section.addEventListener('touchend', () => { mouse.active = false; });
+
+function update() {
+  const mx = mouse.x, my = mouse.y;
+  for (const d of dots) {
+    const cx = d.hx + d.ox, cy = d.hy + d.oy;
+    const dx = cx - mx, dy = cy - my;
+    const d2 = dx*dx + dy*dy;
+    if (mouse.active && d2 < CURSOR_R * CURSOR_R && d2 > 0) {
+      const dist = Math.sqrt(d2);
+      const force = REPEL * Math.pow(1 - dist / CURSOR_R, 2);
+      d.vx += (dx / dist) * force;
+      d.vy += (dy / dist) * force;
+    }
+    d.vx -= d.ox * SPRING_K;
+    d.vy -= d.oy * SPRING_K;
+    d.vx *= DAMPING;
+    d.vy *= DAMPING;
+    d.ox += d.vx;
+    d.oy += d.vy;
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const mx = mouse.x, my = mouse.y;
+  for (const d of dots) {
+    const cx = d.hx + d.ox, cy = d.hy + d.oy;
+    const dx = cx - mx, dy = cy - my;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const alpha = (mouse.active && dist < CURSOR_R)
+      ? BASE_ALPHA + (ACTIVE_ALPHA - BASE_ALPHA) * Math.pow(1 - dist / CURSOR_R, 2)
+      : BASE_ALPHA;
+    ctx.beginPath();
+    ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(232,96,44,${alpha})`;
+    ctx.fill();
+  }
+}
+
+let running = true;
+function loop() {
+  if (!running) return;
+  update(); draw();
+  requestAnimationFrame(loop);
+}
+
+function start() {
+  resize();
+  if (W === 0 || H === 0) { requestAnimationFrame(start); return; }
+  loop();
+}
+requestAnimationFrame(start);
+window.addEventListener('beforeunload', () => { running = false; }, { once: true });
+</script>
