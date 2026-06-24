@@ -9,7 +9,6 @@ const GITHUB_USER = 's3ak6i-dev';
     <div class="gh-card">
       <div class="gh-card-header">
         <p class="gh-card-label">OWN PROJECTS</p>
-        <span class="gh-dot"></span>
       </div>
       <ul class="gh-feed" id="gh-own-feed">
         <li class="gh-skeleton"></li>
@@ -23,7 +22,6 @@ const GITHUB_USER = 's3ak6i-dev';
     <div class="gh-card">
       <div class="gh-card-header">
         <p class="gh-card-label">OPEN SOURCE</p>
-        <span class="gh-dot"></span>
       </div>
       <ul class="gh-feed" id="gh-oss-feed">
         <li class="gh-skeleton"></li>
@@ -49,7 +47,6 @@ const GITHUB_USER = 's3ak6i-dev';
     text-transform: uppercase;
     color: var(--accent);
     margin: 2rem 0 1rem;
-    opacity: 0.5;
   }
 
   .gh-grid {
@@ -93,19 +90,6 @@ const GITHUB_USER = 's3ak6i-dev';
     text-transform: uppercase;
     color: var(--accent);
     margin: 0;
-  }
-
-  .gh-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: gh-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes gh-pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.2; }
   }
 
   .gh-feed {
