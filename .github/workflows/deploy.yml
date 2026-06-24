@@ -32,6 +32,9 @@ jobs:
 
       - name: Build Astro site
         run: npm run build
+        env:
+          CONTENTFUL_SPACE_ID: 7hmiypek44tg
+          CONTENTFUL_ACCESS_TOKEN: iuFLEVKMdMrMO2gNczq1t83T9kEerwDb2_Y8tmgf_J0
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
