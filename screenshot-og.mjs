@@ -9,7 +9,7 @@ const outPath  = resolve(__dirname, 'public', 'og-default.png');
 const browser = await puppeteer.launch({ headless: true });
 const page    = await browser.newPage();
 
-await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
+await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
 await page.goto(`file:///${htmlPath.replace(/\\/g, '/')}`, { waitUntil: 'networkidle0' });
 await page.waitForFunction(() => document.fonts.ready);
 
