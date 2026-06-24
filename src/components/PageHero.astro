@@ -59,15 +59,13 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 	.page-hero-gif {
 		width: 220px;
 		flex-shrink: 0;
-		border-radius: 10px;
-		overflow: hidden;
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 	}
 
 	.page-hero-gif img {
 		display: block;
 		width: 100%;
 		height: auto;
+		border-radius: 4px;
 	}
 
 	@media (max-width: 640px) {
