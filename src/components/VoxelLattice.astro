@@ -1,0 +1,161 @@
+---
+---
+<div class="voxel-wrap" id="voxelWrap">
+  <canvas id="voxelCanvas"></canvas>
+</div>
+
+<script is:inline type="module">
+import * as THREE from 'https://esm.sh/three@0.165.0';
+import { LineSegments2 }        from 'https://esm.sh/three@0.165.0/examples/jsm/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'https://esm.sh/three@0.165.0/examples/jsm/lines/LineSegmentsGeometry.js';
+import { LineMaterial }         from 'https://esm.sh/three@0.165.0/examples/jsm/lines/LineMaterial.js';
+
+const wrap   = document.getElementById('voxelWrap');
+const canvas = document.getElementById('voxelCanvas');
+const W = () => wrap.offsetWidth;
+const H = () => wrap.offsetHeight;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W(), H());
+renderer.setClearColor(0x000000, 0);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(46, W() / H(), 0.1, 100);
+camera.position.set(0, 2, 15);
+camera.lookAt(0, 0.3, 0);
+
+const GRID = 4, GAP = 1.6;
+const HALF = (GRID - 1) * GAP / 2;
+const group = new THREE.Group();
+group.rotation.y = Math.PI / 5;   // 36° — shows right face immediately
+group.rotation.x = Math.PI / 10;  // 18° — slight top-down tilt
+scene.add(group);
+
+// ── merged edge positions ──────────────────────────────────
+const templateEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(1.0, 1.0, 1.0));
+const srcPos = templateEdges.getAttribute('position').array;
+
+const allPos = new Float32Array(GRID ** 3 * srcPos.length);
+let pw = 0;
+for (let xi = 0; xi < GRID; xi++)
+  for (let yi = 0; yi < GRID; yi++)
+    for (let zi = 0; zi < GRID; zi++) {
+      const ox = xi * GAP - HALF, oy = yi * GAP - HALF, oz = zi * GAP - HALF;
+      for (let i = 0; i < srcPos.length; i += 3) {
+        allPos[pw++] = srcPos[i]   + ox;
+        allPos[pw++] = srcPos[i+1] + oy;
+        allPos[pw++] = srcPos[i+2] + oz;
+      }
+    }
+
+// ── Pass 1: dark faces with depth write ───────────────────
+const solidMesh = new THREE.InstancedMesh(
+  new THREE.BoxGeometry(1.0, 1.0, 1.0),
+  new THREE.MeshBasicMaterial({ colorWrite: false }),
+  GRID ** 3
+);
+solidMesh.renderOrder = 0;
+const dummy = new THREE.Object3D();
+let idx = 0;
+for (let xi = 0; xi < GRID; xi++)
+  for (let yi = 0; yi < GRID; yi++)
+    for (let zi = 0; zi < GRID; zi++) {
+      dummy.position.set(xi * GAP - HALF, yi * GAP - HALF, zi * GAP - HALF);
+      dummy.updateMatrix();
+      solidMesh.setMatrixAt(idx++, dummy.matrix);
+    }
+solidMesh.instanceMatrix.needsUpdate = true;
+group.add(solidMesh);
+
+// ── Pass 2: thick edges ───────────────────────────────────
+const segsPerCube = srcPos.length / 6;
+const totalSegs   = GRID ** 3 * segsPerCube;
+const colorsFlat  = new Float32Array(totalSegs * 6);
+
+const lineGeo = new LineSegmentsGeometry();
+lineGeo.setPositions(allPos);
+lineGeo.setColors(colorsFlat);
+
+const cStart = lineGeo.getAttribute('instanceColorStart');
+const cEnd   = lineGeo.getAttribute('instanceColorEnd');
+
+const lineMat = new LineMaterial({
+  linewidth: 2.5,
+  vertexColors: true,
+  resolution: new THREE.Vector2(W(), H()),
+});
+
+const lineSegs = new LineSegments2(lineGeo, lineMat);
+lineSegs.renderOrder = 1;
+group.add(lineSegs);
+
+// ── cursor ────────────────────────────────────────────────
+let mx = 0, my = 0, hovered = false;
+wrap.addEventListener('mousemove', e => {
+  const r = wrap.getBoundingClientRect();
+  mx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+  my = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+  hovered = true;
+});
+wrap.addEventListener('mouseleave', () => { hovered = false; });
+
+// ── loop ──────────────────────────────────────────────────
+let t = 0, targetX = 0;
+(function tick() {
+  requestAnimationFrame(tick);
+  t += 0.016;
+
+  group.position.y = Math.sin(t * 0.45) * 0.1;
+  group.rotation.y += hovered ? mx * 0.04 : 0.009;
+  targetX = hovered ? -my * 0.55 : Math.PI / 10;
+  group.rotation.x += (targetX - group.rotation.x) * 0.07;
+
+  // Exact #E8602C with a tiny breathe so it stays recognisably the same hue
+  const breathe = 0.93 + 0.07 * Math.sin(t * 1.2);
+  const r = breathe * (232/255), g = breathe * (96/255), b = breathe * (44/255);
+  for (let i = 0; i < cStart.array.length; i += 3) {
+    cStart.array[i]   = r; cStart.array[i+1] = g; cStart.array[i+2] = b;
+    cEnd.array[i]     = r; cEnd.array[i+1]   = g; cEnd.array[i+2]   = b;
+  }
+  cStart.needsUpdate = true;
+  cEnd.needsUpdate   = true;
+
+  renderer.render(scene, camera);
+})();
+
+// ── resize ────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  renderer.setSize(W(), H());
+  lineMat.resolution.set(W(), H());
+  camera.aspect = W() / H();
+  camera.updateProjectionMatrix();
+});
+</script>
+
+<style>
+  .voxel-wrap {
+    width: 340px;
+    height: 340px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  #voxelCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    filter:
+      drop-shadow(0 0 4px rgba(232, 96, 44, 0.85))
+      drop-shadow(0 0 14px rgba(232, 96, 44, 0.45))
+      drop-shadow(0 0 30px rgba(232, 96, 44, 0.2));
+  }
+
+  @media (max-width: 768px) {
+    .voxel-wrap {
+      width: 100%;
+      height: 260px;
+    }
+  }
+</style>
