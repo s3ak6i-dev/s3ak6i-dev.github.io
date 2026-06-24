@@ -53,12 +53,11 @@ canvas.parentElement!.addEventListener('mouseleave', () => { mouse.active = fals
 
 // touch support
 canvas.parentElement!.addEventListener('touchmove', e => {
-  e.preventDefault();
   const r = canvas.getBoundingClientRect();
   mouse.x = e.touches[0].clientX - r.left;
   mouse.y = e.touches[0].clientY - r.top;
   mouse.active = true;
-}, { passive: false });
+}, { passive: true });
 canvas.parentElement!.addEventListener('touchend', () => { mouse.active = false; });
 
 function update() {

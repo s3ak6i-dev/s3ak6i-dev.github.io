@@ -126,6 +126,22 @@ const posts = await getBlogPosts();
 				margin: 0;
 				line-height: 1.5;
 			}
+
+			@media (max-width: 520px) {
+				.post-thumb {
+					width: 64px;
+					height: 48px;
+				}
+
+				.post-meta-row {
+					flex-direction: column;
+					gap: 0.125rem;
+				}
+
+				.post-date {
+					font-size: 12px;
+				}
+			}
 		</style>
 	</head>
 	<body>

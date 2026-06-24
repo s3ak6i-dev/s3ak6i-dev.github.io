@@ -76,9 +76,15 @@ const posts = (await getBlogPosts()).slice(0, 3);
 			}
 
 			@media (max-width: 768px) {
-				.hero { height: auto; padding: 3rem 0 4rem; }
-				.hero-inner { flex-direction: column; align-items: flex-start; gap: 2rem; }
-				.hero-gif { width: 100%; }
+				.hero { height: auto; padding: 3rem 0 4rem; overflow: visible; }
+				.hero-inner { flex-direction: column; align-items: flex-start; gap: 2rem; padding: 0 1.25rem; }
+				.hero-gif { width: 100%; max-width: 340px; }
+				.hero-content { max-width: 100%; }
+			}
+
+			@media (max-width: 480px) {
+				.hero-greeting { font-size: 2.75rem; }
+				.hero-sub { font-size: 1rem; }
 			}
 
 			.hero-greeting {
@@ -190,7 +196,8 @@ const posts = (await getBlogPosts()).slice(0, 3);
 				display: flex;
 				justify-content: space-between;
 				align-items: baseline;
-				gap: 1rem;
+				flex-wrap: wrap;
+				gap: 0.25rem 1rem;
 				margin-bottom: 0.25rem;
 			}
 
