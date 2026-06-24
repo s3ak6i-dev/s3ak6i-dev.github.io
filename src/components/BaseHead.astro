@@ -10,6 +10,7 @@ interface Props {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const { title, description, image = '/og-default.png' } = Astro.props;
+const ogImage = new URL(image, Astro.site).toString();
 ---
 
 <!-- Global Metadata -->
@@ -47,13 +48,15 @@ const { title, description, image = '/og-default.png' } = Astro.props;
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
+<meta property="og:image" content={ogImage} />
 <meta property="og:site_name" content={SITE_TITLE} />
 
 <!-- Twitter -->
-<meta property="twitter:card" content="summary" />
-<meta property="twitter:url" content={Astro.url} />
-<meta property="twitter:title" content={title} />
-<meta property="twitter:description" content={description} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={Astro.url} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
 
 <!-- Netlify Identity -->
 <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
