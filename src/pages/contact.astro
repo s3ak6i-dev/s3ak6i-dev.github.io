@@ -110,8 +110,82 @@ import { SITE_TITLE } from '../consts';
 				display: none;
 			}
 
-			.status.success { color: #4ade80; display: block; }
-			.status.error   { color: #f87171; display: block; }
+			.status.error { color: #f87171; display: block; }
+
+			/* Modal */
+			.modal-backdrop {
+				display: none;
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.75);
+				z-index: 200;
+				align-items: center;
+				justify-content: center;
+				padding: 1rem;
+				backdrop-filter: blur(4px);
+			}
+
+			.modal-backdrop.open {
+				display: flex;
+			}
+
+			.modal {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-top: 2px solid var(--accent);
+				border-radius: 10px;
+				padding: 2.5rem 2rem;
+				max-width: 440px;
+				width: 100%;
+				text-align: center;
+				animation: modal-in 0.2s ease;
+			}
+
+			@keyframes modal-in {
+				from { opacity: 0; transform: translateY(12px) scale(0.97); }
+				to   { opacity: 1; transform: translateY(0) scale(1); }
+			}
+
+			.modal-icon {
+				font-size: 2.5rem;
+				margin-bottom: 1rem;
+				line-height: 1;
+			}
+
+			.modal-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1.375rem;
+				font-weight: 700;
+				color: var(--text);
+				margin: 0 0 0.625rem;
+			}
+
+			.modal-body {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.7;
+				margin: 0 0 1.75rem;
+			}
+
+			.modal-body strong {
+				color: var(--accent);
+				font-weight: 500;
+			}
+
+			.modal-close {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 0.9375rem;
+				font-weight: 500;
+				color: #fff;
+				background: var(--accent);
+				border: none;
+				border-radius: 6px;
+				padding: 0.65rem 1.75rem;
+				cursor: pointer;
+				transition: background 0.15s;
+			}
+
+			.modal-close:hover { background: var(--accent-dim); }
 
 			.divider {
 				border: none;
@@ -191,10 +265,44 @@ import { SITE_TITLE } from '../consts';
 		</main>
 		<Footer />
 
+		<!-- Success modal -->
+		<div class="modal-backdrop" id="modal-backdrop">
+			<div class="modal" role="dialog" aria-modal="true">
+				<div class="modal-icon">✉️</div>
+				<h2 class="modal-title">Got it, <span id="modal-name"></span>!</h2>
+				<p class="modal-body">
+					Your message is in my inbox. I'll get back to you <strong>as soon as possible</strong> —
+					usually within a day or two. Appreciate you reaching out.
+				</p>
+				<button class="modal-close" id="modal-close">Sounds good</button>
+			</div>
+		</div>
+
 		<script>
-			const form = document.getElementById('contact-form') as HTMLFormElement;
-			const btn  = document.getElementById('submit-btn') as HTMLButtonElement;
-			const status = document.getElementById('form-status') as HTMLSpanElement;
+			const form     = document.getElementById('contact-form') as HTMLFormElement;
+			const btn      = document.getElementById('submit-btn') as HTMLButtonElement;
+			const status   = document.getElementById('form-status') as HTMLSpanElement;
+			const backdrop = document.getElementById('modal-backdrop') as HTMLDivElement;
+			const modalName = document.getElementById('modal-name') as HTMLSpanElement;
+			const closeBtn  = document.getElementById('modal-close') as HTMLButtonElement;
+
+			function openModal(name: string) {
+				modalName.textContent = name.split(' ')[0];
+				backdrop.classList.add('open');
+				closeBtn.focus();
+			}
+
+			function closeModal() {
+				backdrop.classList.remove('open');
+			}
+
+			closeBtn.addEventListener('click', closeModal);
+			backdrop.addEventListener('click', (e) => {
+				if (e.target === backdrop) closeModal();
+			});
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') closeModal();
+			});
 
 			form.addEventListener('submit', async (e) => {
 				e.preventDefault();
@@ -203,11 +311,9 @@ import { SITE_TITLE } from '../consts';
 				status.className = 'status';
 				status.textContent = '';
 
-				const data = {
-					name:    (document.getElementById('name') as HTMLInputElement).value,
-					email:   (document.getElementById('email') as HTMLInputElement).value,
-					message: (document.getElementById('message') as HTMLTextAreaElement).value,
-				};
+				const name    = (document.getElementById('name') as HTMLInputElement).value;
+				const email   = (document.getElementById('email') as HTMLInputElement).value;
+				const message = (document.getElementById('message') as HTMLTextAreaElement).value;
 
 				try {
 					const res = await fetch('https://api.web3forms.com/submit', {
@@ -215,14 +321,13 @@ import { SITE_TITLE } from '../consts';
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
 							access_key: '61a3138f-491e-449a-b888-edc264b2b38c',
-							...data,
+							name, email, message,
 						}),
 					});
 					const json = await res.json();
 					if (json.success) {
-						status.textContent = 'Message sent — I\'ll get back to you soon.';
-						status.className = 'status success';
 						form.reset();
+						openModal(name);
 					} else {
 						throw new Error('Failed');
 					}
