@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import PageHero from '../components/PageHero.astro';
 import { SITE_TITLE } from '../consts';
 ---
 
@@ -108,11 +109,14 @@ import { SITE_TITLE } from '../consts';
 	</head>
 	<body>
 		<Header />
+		<PageHero
+			title="Uses"
+			subtitle="Tools I actually use. Updated when things change."
+			gifSrc="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGtya2NpdWZnb3o3OGN3dndxajJsdG91ZXpxZnk0bTh2NnFrOTIydyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/U4w70V3qqkZn8A0OwX/giphy.gif"
+			gifAlt="Wolf of Wall Street"
+		/>
 		<main style="padding: 0; max-width: 100%; width: 100%;">
 			<div class="page">
-				<h1 class="page-heading">Uses</h1>
-				<p class="page-sub">Tools I actually use. Updated when things change.</p>
-
 				<!-- Languages -->
 				<section class="section">
 					<p class="section-label">Languages</p>

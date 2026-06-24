@@ -25,6 +25,8 @@ body {
 	margin: 0;
 	padding: 0;
 	background-color: var(--bg);
+	background-image: radial-gradient(circle, #ffffff08 1px, transparent 1px);
+	background-size: 28px 28px;
 	color: var(--text);
 	font-size: 17px;
 	line-height: 1.75;
