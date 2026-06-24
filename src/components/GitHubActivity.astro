@@ -83,7 +83,7 @@ const GITHUB_USER = 's3ak6i-dev';
 
   .gh-card-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 400;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -139,7 +139,7 @@ const GITHUB_USER = 's3ak6i-dev';
     li:    'display:flex;align-items:baseline;gap:0.5rem;font-size:0.9rem;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.05);list-style:none;',
     liEnd: 'display:flex;align-items:baseline;gap:0.5rem;font-size:0.9rem;padding:0.6rem 0;list-style:none;',
     dash:  'color:var(--accent);font-size:0.75rem;flex-shrink:0;',
-    event: 'color:rgba(255,255,255,0.35);',
+    event: 'color:rgba(255,255,255,0.35);font-style:italic;',
     repo:  'color:rgba(255,255,255,0.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;',
     time:  'margin-left:auto;font-family:JetBrains Mono,monospace;font-size:11px;color:rgba(255,255,255,0.18);flex-shrink:0;white-space:nowrap;',
   };
@@ -153,7 +153,7 @@ const GITHUB_USER = 's3ak6i-dev';
 
   function eventLabel(e) {
     switch (e.type) {
-      case 'PushEvent':         return `pushed ${e.payload?.commits?.length ?? 1}`;
+      case 'PushEvent':         return 'pushed';
       case 'PullRequestEvent':  return `PR ${e.payload?.action ?? 'opened'}`;
       case 'IssuesEvent':       return `issue ${e.payload?.action ?? 'opened'}`;
       case 'ForkEvent':         return 'forked';
