@@ -253,6 +253,17 @@ const posts = (await getBlogPosts()).slice(0, 3);
 				color: var(--accent-dim);
 			}
 
+			.tw-cursor {
+				color: var(--accent);
+				animation: tw-blink 0.9s step-end infinite;
+				font-weight: 300;
+			}
+
+			@keyframes tw-blink {
+				0%, 100% { opacity: 1; }
+				50%       { opacity: 0; }
+			}
+
 		</style>
 	</head>
 	<body>
@@ -264,7 +275,7 @@ const posts = (await getBlogPosts()).slice(0, 3);
 				<div class="hero-inner">
 					<div class="hero-content">
 						<h1 class="hero-greeting">Hey, I'm Surya.</h1>
-						<p class="hero-sub">AI Engineer. I think about how constrained systems coordinate under uncertainty.</p>
+						<p class="hero-sub"><span id="tw"></span><span class="tw-cursor">▋</span></p>
 						<div class="hero-ctas">
 							<a href="/blog">Read the blog →</a>
 							<a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">View GitHub →</a>
@@ -336,5 +347,51 @@ const posts = (await getBlogPosts()).slice(0, 3);
 			</div>
 		</main>
 		<Footer />
+		<script>
+			(() => {
+				const phrases = [
+					'AI Engineer. Building at the intersection of ML and systems.',
+					'ML Researcher. 2 IEEE publications, 1 filed patent.',
+					'Builder. 6 projects shipped.',
+				];
+
+				const el    = document.getElementById('tw');
+				if (!el) return;
+
+				let pi    = 0;   // phrase index
+				let ci    = 0;   // char index
+				let del   = false;
+
+				const TYPE_MS   = 42;
+				const DEL_MS    = 18;
+				const PAUSE_END = 2200;
+				const PAUSE_NEW = 350;
+
+				function tick() {
+					const phrase = phrases[pi];
+
+					if (!del) {
+						el.textContent = phrase.slice(0, ++ci);
+						if (ci === phrase.length) {
+							del = true;
+							setTimeout(tick, PAUSE_END);
+						} else {
+							setTimeout(tick, TYPE_MS);
+						}
+					} else {
+						el.textContent = phrase.slice(0, --ci);
+						if (ci === 0) {
+							del = false;
+							pi  = (pi + 1) % phrases.length;
+							setTimeout(tick, PAUSE_NEW);
+						} else {
+							setTimeout(tick, DEL_MS);
+						}
+					}
+				}
+
+				setTimeout(tick, 400);
+			})();
+		</script>
 	</body>
 </html>
