@@ -1,0 +1,240 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import PageHero from '../components/PageHero.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`Contact — ${SITE_TITLE}`}
+			description="Get in touch with Surya Krishna — open to AI Engineer and Full-Stack AI roles in Bangalore."
+		/>
+		<style>
+			.page {
+				width: 720px;
+				max-width: calc(100% - 2rem);
+				margin: 0 auto;
+				padding: 3rem 1rem 5rem;
+			}
+
+			.intent {
+				font-size: 1rem;
+				color: var(--text-muted);
+				line-height: 1.75;
+				margin: 0 0 2.5rem;
+				padding: 1.25rem 1.5rem;
+				border-left: 2px solid var(--accent);
+				background: var(--surface);
+				border-radius: 0 6px 6px 0;
+			}
+
+			.intent strong {
+				color: var(--text);
+				font-weight: 500;
+			}
+
+			.form {
+				display: flex;
+				flex-direction: column;
+				gap: 1.25rem;
+			}
+
+			.field {
+				display: flex;
+				flex-direction: column;
+				gap: 0.4rem;
+			}
+
+			label {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+				color: var(--text-muted);
+			}
+
+			input,
+			textarea {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 6px;
+				color: var(--text);
+				font-family: 'Inter', sans-serif;
+				font-size: 0.9375rem;
+				padding: 0.75rem 1rem;
+				width: 100%;
+				transition: border-color 0.15s;
+				outline: none;
+				resize: vertical;
+			}
+
+			input:focus,
+			textarea:focus {
+				border-color: var(--accent);
+			}
+
+			textarea {
+				min-height: 140px;
+			}
+
+			.submit-row {
+				display: flex;
+				align-items: center;
+				gap: 1.25rem;
+				flex-wrap: wrap;
+			}
+
+			.btn-submit {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 0.9375rem;
+				font-weight: 500;
+				color: #fff;
+				background: var(--accent);
+				border: none;
+				border-radius: 6px;
+				padding: 0.7rem 1.75rem;
+				cursor: pointer;
+				transition: background 0.15s, opacity 0.15s;
+			}
+
+			.btn-submit:hover { background: var(--accent-dim); }
+			.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+			.status {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 13px;
+				display: none;
+			}
+
+			.status.success { color: #4ade80; display: block; }
+			.status.error   { color: #f87171; display: block; }
+
+			.divider {
+				border: none;
+				border-top: 1px solid var(--border);
+				margin: 2.5rem 0;
+			}
+
+			.alt-contact {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.7;
+			}
+
+			.alt-contact a {
+				color: var(--accent);
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 13px;
+			}
+
+			.alt-contact a:hover { color: var(--accent-dim); }
+
+			.alt-links {
+				display: flex;
+				gap: 1.5rem;
+				margin-top: 0.75rem;
+				flex-wrap: wrap;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<PageHero
+			title="Get in touch"
+			subtitle="Open to AI Engineer and Full-Stack AI roles in Bangalore. Also happy to talk research, collabs, or just interesting ideas."
+			gifSrc="https://media1.tenor.com/m/3C4bAf7b8C0AAAAC/the-matrix-morpheus.gif"
+			gifAlt="Morpheus red pill blue pill"
+		/>
+		<main style="padding: 0; max-width: 100%; width: 100%;">
+			<div class="page">
+				<p class="intent">
+					<strong>What I'm looking for:</strong> AI Engineer and Full-Stack AI roles at Bangalore startups.
+					Final year, available from mid-2026. If you're building something interesting in the AI space — let's talk.
+				</p>
+
+				<form class="form" id="contact-form">
+					<div class="field">
+						<label for="name">Name</label>
+						<input type="text" id="name" name="name" placeholder="Your name" required />
+					</div>
+
+					<div class="field">
+						<label for="email">Email</label>
+						<input type="email" id="email" name="email" placeholder="your@email.com" required />
+					</div>
+
+					<div class="field">
+						<label for="message">Message</label>
+						<textarea id="message" name="message" placeholder="What's on your mind?" required></textarea>
+					</div>
+
+					<div class="submit-row">
+						<button class="btn-submit" type="submit" id="submit-btn">Send message</button>
+						<span class="status" id="form-status"></span>
+					</div>
+				</form>
+
+				<hr class="divider" />
+
+				<div class="alt-contact">
+					Prefer direct contact?
+					<div class="alt-links">
+						<a href="mailto:slntmtrx@gmail.com">slntmtrx@gmail.com</a>
+						<a href="https://github.com/s3ak6i-dev" target="_blank" rel="noopener noreferrer">GitHub</a>
+						<a href="https://linkedin.com/in/surya-krishna-kunapuli" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+					</div>
+				</div>
+			</div>
+		</main>
+		<Footer />
+
+		<script>
+			const form = document.getElementById('contact-form') as HTMLFormElement;
+			const btn  = document.getElementById('submit-btn') as HTMLButtonElement;
+			const status = document.getElementById('form-status') as HTMLSpanElement;
+
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				btn.disabled = true;
+				btn.textContent = 'Sending…';
+				status.className = 'status';
+				status.textContent = '';
+
+				const data = {
+					name:    (document.getElementById('name') as HTMLInputElement).value,
+					email:   (document.getElementById('email') as HTMLInputElement).value,
+					message: (document.getElementById('message') as HTMLTextAreaElement).value,
+				};
+
+				try {
+					const res = await fetch('https://api.web3forms.com/submit', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							access_key: 'REPLACE_WITH_WEB3FORMS_KEY',
+							...data,
+						}),
+					});
+					const json = await res.json();
+					if (json.success) {
+						status.textContent = 'Message sent — I\'ll get back to you soon.';
+						status.className = 'status success';
+						form.reset();
+					} else {
+						throw new Error('Failed');
+					}
+				} catch {
+					status.textContent = 'Something went wrong. Try emailing directly.';
+					status.className = 'status error';
+				} finally {
+					btn.disabled = false;
+					btn.textContent = 'Send message';
+				}
+			});
+		</script>
+	</body>
+</html>
