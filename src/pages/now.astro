@@ -38,13 +38,23 @@ for (let i = 1; i < rawSections.length; i++) {
 				padding: 3rem 1rem 5rem;
 			}
 
+			.page-top {
+				display: flex;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 1.5rem;
+				margin-bottom: 0.5rem;
+			}
+
+			.page-top-text { flex: 1; }
+
 			.page-header {
 				display: flex;
 				align-items: baseline;
 				justify-content: space-between;
 				flex-wrap: wrap;
 				gap: 0.5rem;
-				margin-bottom: 0.5rem;
+				margin-bottom: 0;
 			}
 
 			.page-heading { font-size: 2rem; margin: 0; }
@@ -54,6 +64,24 @@ for (let i = 1; i < rawSections.length; i++) {
 				font-size: 12px;
 				color: var(--text-muted);
 				white-space: nowrap;
+			}
+
+			.page-gif {
+				width: 140px;
+				flex-shrink: 0;
+				border-radius: 8px;
+				overflow: hidden;
+			}
+
+			.page-gif img {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+
+			@media (max-width: 560px) {
+				.page-gif { width: 100px; }
+				.page-top { gap: 1rem; }
 			}
 
 			.divider {
@@ -150,9 +178,16 @@ for (let i = 1; i < rawSections.length; i++) {
 		<Header />
 		<main style="padding: 0; max-width: 100%; width: 100%;">
 			<div class="page">
-				<div class="page-header">
-					<h1 class="page-heading">Now</h1>
-					<span class="updated">Updated {updatedStr}</span>
+				<div class="page-top">
+					<div class="page-top-text">
+						<div class="page-header">
+							<h1 class="page-heading">Now</h1>
+							<span class="updated">Updated {updatedStr}</span>
+						</div>
+					</div>
+					<div class="page-gif">
+						<img src="https://media1.tenor.com/m/McY9R4_xYOIAAAAC/iron-man-tony-stark.gif" alt="Iron Man" />
+					</div>
 				</div>
 				<hr class="divider" />
 

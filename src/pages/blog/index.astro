@@ -20,7 +20,15 @@ const posts = await getBlogPosts();
 				padding: 3rem 1rem 4rem;
 			}
 
-			.blog-listing h1 {
+			.page-header {
+				display: flex;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 1.5rem;
+				margin-bottom: 2.5rem;
+			}
+
+			.page-header-text h1 {
 				font-size: 2rem;
 				margin-bottom: 0.5rem;
 			}
@@ -28,7 +36,24 @@ const posts = await getBlogPosts();
 			.blog-subtitle {
 				color: var(--text-muted);
 				font-size: 1rem;
-				margin-bottom: 2.5rem;
+				margin: 0;
+			}
+
+			.page-gif {
+				width: 140px;
+				flex-shrink: 0;
+				border-radius: 8px;
+				overflow: hidden;
+			}
+
+			.page-gif img {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+
+			@media (max-width: 560px) {
+				.page-gif { width: 100px; }
 			}
 
 			.post-list {
@@ -148,8 +173,15 @@ const posts = await getBlogPosts();
 		<Header />
 		<main style="padding: 0; max-width: 100%; width: 100%;">
 			<div class="blog-listing">
-				<h1>Writing</h1>
-				<p class="blog-subtitle">Notes on AI, systems, and building things.</p>
+				<div class="page-header">
+					<div class="page-header-text">
+						<h1>Writing</h1>
+						<p class="blog-subtitle">Notes on AI, systems, and building things.</p>
+					</div>
+					<div class="page-gif">
+						<img src="https://media1.tenor.com/m/796hzQFEHqoAAAAC/uy-rick-y-morty.gif" alt="Rick and Morty" />
+					</div>
+				</div>
 
 				<ul class="post-list">
 					{
