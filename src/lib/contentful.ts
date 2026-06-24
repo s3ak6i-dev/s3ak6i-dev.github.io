@@ -91,7 +91,8 @@ export async function getProjects(): Promise<Project[]> {
   const res = await client.getEntries({
     content_type: 'project',
     order:        ['-fields.year' as any],
-  });
+    include:      2,
+  } as any);
   return res.items.map((item: any) => {
     const f = item.fields;
     const html = toHtml(f.body);
@@ -115,6 +116,7 @@ export async function getProject(slug: string): Promise<Project | null> {
     content_type:  'project',
     'fields.slug': slug,
     limit:         1,
+    include:       2,
   } as any);
   if (!res.items.length) return null;
   const f = (res.items[0] as any).fields;
