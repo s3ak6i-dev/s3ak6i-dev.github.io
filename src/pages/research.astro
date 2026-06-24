@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import PageHero from '../components/PageHero.astro';
 import { SITE_TITLE } from '../consts';
 ---
 
@@ -193,10 +194,14 @@ import { SITE_TITLE } from '../consts';
 	</head>
 	<body>
 		<Header />
+		<PageHero
+			title="Research"
+			subtitle="Publications, patents, and academic work."
+			gifSrc="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjFndTh3czhyc2xkeTVnOGdlNTk5cnV5eTV2NjQ2dDJ6MXFxNXFxYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lpnJDo7ExzUymI3JEv/giphy.gif"
+			gifAlt="Sheldon Cooper"
+		/>
 		<main style="padding: 0; max-width: 100%; width: 100%;">
 			<div class="page">
-				<h1 class="page-heading">Research</h1>
-				<p class="page-sub">Publications, patents, and academic work.</p>
 
 				<!-- Publications -->
 				<section class="section">
