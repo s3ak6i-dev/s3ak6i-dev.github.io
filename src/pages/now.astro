@@ -13,6 +13,17 @@ const updatedStr = new Date(now.updatedDate).toLocaleDateString('en-US', {
 	month: 'long',
 	day: 'numeric',
 });
+
+// Split rich text into intro + named sections by <h2>
+const rawSections = now.bodyHtml.split(/<h2[^>]*>/);
+const intro = rawSections[0].trim();
+const sections: { title: string; content: string }[] = [];
+for (let i = 1; i < rawSections.length; i++) {
+	const closeIdx = rawSections[i].indexOf('</h2>');
+	const title   = rawSections[i].slice(0, closeIdx);
+	const content = rawSections[i].slice(closeIdx + 5).trim();
+	sections.push({ title, content });
+}
 ---
 
 <!doctype html>
@@ -21,7 +32,7 @@ const updatedStr = new Date(now.updatedDate).toLocaleDateString('en-US', {
 		<BaseHead title={`Now — ${SITE_TITLE}`} description="What I'm focused on right now." />
 		<style>
 			.page {
-				width: 720px;
+				width: 960px;
 				max-width: calc(100% - 2rem);
 				margin: 0 auto;
 				padding: 3rem 1rem 5rem;
@@ -50,37 +61,88 @@ const updatedStr = new Date(now.updatedDate).toLocaleDateString('en-US', {
 				margin: 1.5rem 0 2.5rem;
 			}
 
-			/* Prose styles for Contentful rich text */
-			.prose :global(h2) {
-				font-family: 'JetBrains Mono', monospace;
-				font-size: 11px;
-				letter-spacing: 0.12em;
-				text-transform: uppercase;
-				color: var(--accent);
-				margin: 2.5rem 0 0.875rem;
-			}
-			.prose :global(h2:first-child) { margin-top: 0; }
-			.prose :global(p) {
+			.intro {
 				font-size: 1rem;
 				color: var(--text-muted);
 				line-height: 1.75;
-				margin: 0 0 1rem;
+				margin-bottom: 2.5rem;
+				max-width: 560px;
 			}
-			.prose :global(ul) {
-				padding-left: 1.25rem;
-				margin: 0 0 1rem;
+
+			.cards {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 1rem;
+				align-items: start;
+			}
+
+			@media (max-width: 768px) {
+				.cards { grid-template-columns: 1fr; }
+			}
+
+			.card {
+				border: 1px solid var(--border);
+				border-top: 2px solid var(--accent);
+				border-radius: 8px;
+				padding: 1.5rem 1.5rem 1.75rem;
+				background: #141414;
+				transition: border-color 0.2s, box-shadow 0.2s;
+			}
+
+			.card:hover {
+				border-color: rgba(232, 96, 44, 0.5);
+				border-top-color: var(--accent);
+				box-shadow: 0 4px 24px rgba(232, 96, 44, 0.06);
+			}
+
+			.card-label {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 10px;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+				color: var(--accent);
+				margin: 0 0 1.25rem;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.card :global(p) {
+				font-size: 0.9375rem;
 				color: var(--text-muted);
 				line-height: 1.75;
+				margin: 0;
 			}
-			.prose :global(li) { margin-bottom: 0.4rem; }
-			.prose :global(a) { color: var(--accent); text-decoration: none; }
-			.prose :global(a:hover) { color: var(--accent-dim); }
-			.prose :global(strong) { color: var(--text); font-weight: 500; }
-			.prose :global(hr) {
-				border: none;
-				border-top: 1px solid var(--border);
-				margin: 2rem 0;
+
+			.card :global(ul) {
+				list-style: none;
+				padding: 0;
+				margin: 0;
 			}
+
+			.card :global(li) {
+				font-size: 0.9rem;
+				color: var(--text-muted);
+				line-height: 1.5;
+				padding: 0.6rem 0;
+				border-bottom: 1px solid rgba(255,255,255,0.05);
+				display: flex;
+				align-items: baseline;
+				gap: 0.5rem;
+			}
+
+			.card :global(li::before) {
+				content: '—';
+				color: var(--accent);
+				flex-shrink: 0;
+				font-size: 0.75rem;
+			}
+
+			.card :global(li:last-child) { border-bottom: none; }
+			.card :global(strong) { color: var(--text); font-weight: 500; }
+			.card :global(a) { color: var(--accent); text-decoration: none; }
+			.card :global(a:hover) { opacity: 0.8; }
+
 		</style>
 	</head>
 	<body>
@@ -92,7 +154,17 @@ const updatedStr = new Date(now.updatedDate).toLocaleDateString('en-US', {
 					<span class="updated">Updated {updatedStr}</span>
 				</div>
 				<hr class="divider" />
-				<div class="prose" set:html={now.bodyHtml} />
+
+				{intro && <div class="intro" set:html={intro} />}
+
+				<div class="cards">
+					{sections.map(({ title, content }) => (
+						<div class="card">
+							<p class="card-label">{title}</p>
+							<div set:html={content} />
+						</div>
+					))}
+				</div>
 			</div>
 		</main>
 		<Footer />
