@@ -1,4 +1,4 @@
-﻿---
+---
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
@@ -16,7 +16,6 @@ const updatedStr = new Date(now.updatedDate).toLocaleDateString('en-US', {
 	day: 'numeric',
 });
 
-// Split rich text into intro + named sections by <h2>
 const rawSections = now.bodyHtml.split(/<h2[^>]*>/);
 const intro = rawSections[0].trim();
 const sections: { title: string; content: string }[] = [];
@@ -31,7 +30,7 @@ for (let i = 1; i < rawSections.length; i++) {
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`Now â€” ${SITE_TITLE}`} description="What I'm focused on right now." />
+		<BaseHead title={`Now — ${SITE_TITLE}`} description="What I'm focused on right now." />
 		<style>
 			.page {
 				width: 960px;
@@ -46,12 +45,6 @@ for (let i = 1; i < rawSections.length; i++) {
 				color: var(--text-muted);
 				margin-top: 0.5rem;
 				display: block;
-			}
-
-			.divider {
-				border: none;
-				border-top: 1px solid var(--border);
-				margin: 1.5rem 0 2.5rem;
 			}
 
 			.intro {
@@ -125,7 +118,7 @@ for (let i = 1; i < rawSections.length; i++) {
 			}
 
 			.card :global(li::before) {
-				content: 'â€”';
+				content: '—';
 				color: var(--accent);
 				flex-shrink: 0;
 				font-size: 0.75rem;
@@ -135,7 +128,6 @@ for (let i = 1; i < rawSections.length; i++) {
 			.card :global(strong) { color: var(--text); font-weight: 500; }
 			.card :global(a) { color: var(--accent); text-decoration: none; }
 			.card :global(a:hover) { opacity: 0.8; }
-
 		</style>
 	</head>
 	<body>
@@ -160,6 +152,7 @@ for (let i = 1; i < rawSections.length; i++) {
 						</div>
 					))}
 				</div>
+
 				<GitHubActivity />
 			</div>
 		</main>
