@@ -49,7 +49,7 @@ if (!project) return Astro.redirect('/projects');
 
 			.hero-image {
 				width: 100%;
-				aspect-ratio: 16 / 9;
+				max-height: 360px;
 				border-radius: 8px;
 				overflow: hidden;
 				margin-bottom: 2rem;
@@ -60,7 +60,32 @@ if (!project) return Astro.redirect('/projects');
 			.hero-image img {
 				width: 100%;
 				height: 100%;
+				max-height: 360px;
 				object-fit: cover;
+				object-position: top;
+			}
+
+			.screenshots {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+				gap: 1rem;
+				margin-top: 2rem;
+			}
+
+			.screenshot {
+				border-radius: 8px;
+				overflow: hidden;
+				border: 1px solid var(--border);
+				background: var(--surface-2);
+				aspect-ratio: 9 / 16;
+			}
+
+			.screenshot img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				object-position: top;
+				display: block;
 			}
 
 			.project-title {
@@ -211,6 +236,16 @@ if (!project) return Astro.redirect('/projects');
 				<hr class="divider" />
 
 				{project.bodyHtml && <div class="body" set:html={project.bodyHtml} />}
+
+				{project.screenshots && project.screenshots.length > 0 && (
+					<div class="screenshots">
+						{project.screenshots.map((src) => (
+							<div class="screenshot">
+								<img src={src} alt={`${project.name} screenshot`} loading="lazy" />
+							</div>
+						))}
+					</div>
+				)}
 			</div>
 		</main>
 		<Footer />

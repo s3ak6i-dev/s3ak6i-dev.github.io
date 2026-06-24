@@ -26,6 +26,7 @@ export interface Project {
   status:       'active' | 'completed' | 'archived';
   stack:        string[];
   image?:       string;
+  screenshots?: string[];
   github?:      string;
   demo?:        string;
   bodyHtml?:    string;
@@ -104,6 +105,9 @@ export async function getProjects(): Promise<Project[]> {
       status:      f.status ?? 'completed',
       stack:       f.stack ?? [],
       image:       assetUrl(f.media) ?? assetUrl(f.image),
+      screenshots: Array.isArray(f.screenshots)
+        ? f.screenshots.map((a: any) => assetUrl(a)).filter(Boolean)
+        : undefined,
       github:      f.github,
       demo:        f.demo,
       bodyHtml:    html || undefined,
@@ -128,6 +132,9 @@ export async function getProject(slug: string): Promise<Project | null> {
     status:      f.status ?? 'completed',
     stack:       f.stack ?? [],
     image:       assetUrl(f.media) ?? assetUrl(f.image),
+    screenshots: Array.isArray(f.screenshots)
+      ? f.screenshots.map((a: any) => assetUrl(a)).filter(Boolean)
+      : undefined,
     github:      f.github,
     demo:        f.demo,
     bodyHtml:    toHtml(f.body) || undefined,
