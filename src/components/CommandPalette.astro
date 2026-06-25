@@ -31,6 +31,11 @@ import { GITHUB_URL, LINKEDIN_URL } from '../consts';
     <li class="cp-item cp-external" role="option" data-href={GITHUB_URL}   data-keywords="github code repos">GitHub <span class="cp-path">↗</span></li>
     <li class="cp-item cp-external" role="option" data-href={LINKEDIN_URL} data-keywords="linkedin profile">LinkedIn <span class="cp-path">↗</span></li>
   </ul>
+  <div class="cp-empty" id="cp-empty">
+    <img src="https://media1.tenor.com/m/rkvaNTt7SSAAAAAC/bruce-almighty-comedy.gif" alt="Bruce Almighty typing" class="cp-empty-gif" />
+    <p class="cp-empty-text">nothing found.</p>
+  </div>
+
   <div class="cp-footer">
     <span><kbd>↑↓</kbd> navigate</span>
     <span><kbd>Enter</kbd> go</span>
@@ -156,6 +161,30 @@ import { GITHUB_URL, LINKEDIN_URL } from '../consts';
     color: rgba(232,96,44,0.6);
   }
 
+  .cp-empty {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1.25rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .cp-empty.visible {
+    display: flex;
+  }
+
+  .cp-empty-gif {
+    width: 160px;
+    border-radius: 4px;
+  }
+
+  .cp-empty-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+    margin: 0;
+  }
+
   .cp-footer {
     border-top: 1px solid var(--border);
     padding: 0.6rem 1.25rem;
@@ -181,6 +210,7 @@ import { GITHUB_URL, LINKEDIN_URL } from '../consts';
   const modal    = document.getElementById('cp-modal')!;
   const input    = document.getElementById('cp-input') as HTMLInputElement;
   const list     = document.getElementById('cp-list')!;
+  const empty    = document.getElementById('cp-empty')!;
 
   function open() {
     backdrop.classList.add('open');
@@ -235,6 +265,10 @@ import { GITHUB_URL, LINKEDIN_URL } from '../consts';
       }
       group.style.display = hasVisible ? '' : 'none';
     });
+
+    const hasResults = items().length > 0;
+    list.style.display  = hasResults ? '' : 'none';
+    empty.classList.toggle('visible', !hasResults);
   }
 
   // keyboard shortcut
