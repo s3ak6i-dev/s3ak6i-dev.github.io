@@ -1,5 +1,6 @@
 ---
 import HeaderLink from './HeaderLink.astro';
+import CommandPalette from './CommandPalette.astro';
 ---
 
 <header>
@@ -15,9 +16,14 @@ import HeaderLink from './HeaderLink.astro';
 			<HeaderLink href="/now">Now</HeaderLink>
 			<HeaderLink href="/contact">Contact</HeaderLink>
 			<HeaderLink href="/uses">Uses</HeaderLink>
+			<button class="cp-trigger" onclick="window.__cpOpen?.()" aria-label="Open command palette">
+				Ctrl K
+			</button>
 		</div>
 	</nav>
 </header>
+
+<CommandPalette />
 
 <style>
 	header {
@@ -55,6 +61,26 @@ import HeaderLink from './HeaderLink.astro';
 		display: flex;
 		align-items: center;
 		gap: 0.25rem;
+	}
+
+	.cp-trigger {
+		margin-left: 0.75rem;
+		font-family: 'JetBrains Mono', monospace;
+		font-size: 11px;
+		color: rgba(255,255,255,0.25);
+		background: rgba(255,255,255,0.04);
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		padding: 3px 8px;
+		cursor: pointer;
+		transition: color 0.2s, border-color 0.2s, background 0.2s;
+		white-space: nowrap;
+	}
+
+	.cp-trigger:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+		background: rgba(232,96,44,0.06);
 	}
 
 	.menu-toggle {

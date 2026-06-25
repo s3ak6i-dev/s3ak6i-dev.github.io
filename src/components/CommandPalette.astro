@@ -1,0 +1,279 @@
+---
+import { GITHUB_URL, LINKEDIN_URL } from '../consts';
+---
+
+<!-- Overlay -->
+<div class="cp-backdrop" id="cp-backdrop" aria-hidden="true"></div>
+
+<!-- Palette -->
+<div class="cp-modal" id="cp-modal" role="dialog" aria-label="Command palette" aria-hidden="true">
+  <div class="cp-input-row">
+    <span class="cp-prompt">&gt;_</span>
+    <input
+      class="cp-input"
+      id="cp-input"
+      type="text"
+      placeholder="go somewhere..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+  </div>
+  <div class="cp-divider"></div>
+  <ul class="cp-list" id="cp-list" role="listbox">
+    <li class="cp-group">PAGES</li>
+    <li class="cp-item" role="option" data-href="/blog"        data-keywords="writing blog posts">Writing <span class="cp-path">/blog</span></li>
+    <li class="cp-item" role="option" data-href="/projects"    data-keywords="projects work shipped">Projects <span class="cp-path">/projects</span></li>
+    <li class="cp-item" role="option" data-href="/research"    data-keywords="research ieee patent publications">Research <span class="cp-path">/research</span></li>
+    <li class="cp-item" role="option" data-href="/now"         data-keywords="now current building reading">Now <span class="cp-path">/now</span></li>
+    <li class="cp-item" role="option" data-href="/contact"     data-keywords="contact email message">Contact <span class="cp-path">/contact</span></li>
+    <li class="cp-item" role="option" data-href="/uses"        data-keywords="uses tools stack setup">Uses <span class="cp-path">/uses</span></li>
+    <li class="cp-group">LINKS</li>
+    <li class="cp-item cp-external" role="option" data-href={GITHUB_URL}   data-keywords="github code repos">GitHub <span class="cp-path">↗</span></li>
+    <li class="cp-item cp-external" role="option" data-href={LINKEDIN_URL} data-keywords="linkedin profile">LinkedIn <span class="cp-path">↗</span></li>
+  </ul>
+  <div class="cp-footer">
+    <span><kbd>↑↓</kbd> navigate</span>
+    <span><kbd>Enter</kbd> go</span>
+    <span><kbd>Esc</kbd> close</span>
+  </div>
+</div>
+
+<style>
+  .cp-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 999;
+  }
+
+  .cp-modal {
+    display: none;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 520px;
+    max-width: calc(100vw - 2rem);
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    z-index: 1000;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  .cp-backdrop.open,
+  .cp-modal.open {
+    display: block;
+  }
+
+  .cp-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .cp-prompt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .cp-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--text);
+    caret-color: var(--accent);
+  }
+
+  .cp-input::placeholder {
+    color: rgba(255,255,255,0.2);
+  }
+
+  .cp-divider {
+    height: 1px;
+    background: var(--border);
+  }
+
+  .cp-list {
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .cp-group {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.25);
+    padding: 0.6rem 1.25rem 0.3rem;
+    text-transform: uppercase;
+  }
+
+  .cp-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 0.55rem 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-left: 2px solid transparent;
+    transition: background 0.1s, border-color 0.1s, color 0.1s;
+  }
+
+  .cp-item.active,
+  .cp-item:hover {
+    background: rgba(232, 96, 44, 0.08);
+    border-left-color: var(--accent);
+    color: var(--text);
+  }
+
+  .cp-item.hidden {
+    display: none;
+  }
+
+  .cp-path {
+    color: rgba(255,255,255,0.2);
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .cp-item.active .cp-path,
+  .cp-item:hover .cp-path {
+    color: rgba(232,96,44,0.6);
+  }
+
+  .cp-footer {
+    border-top: 1px solid var(--border);
+    padding: 0.6rem 1.25rem;
+    display: flex;
+    gap: 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+  }
+
+  kbd {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: inherit;
+    font-size: inherit;
+  }
+</style>
+
+<script>
+  const backdrop = document.getElementById('cp-backdrop')!;
+  const modal    = document.getElementById('cp-modal')!;
+  const input    = document.getElementById('cp-input') as HTMLInputElement;
+  const list     = document.getElementById('cp-list')!;
+
+  function open() {
+    backdrop.classList.add('open');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    input.value = '';
+    filterItems('');
+    setActive(0);
+    input.focus();
+  }
+
+  function close() {
+    backdrop.classList.remove('open');
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  function items() {
+    return Array.from(list.querySelectorAll<HTMLElement>('.cp-item:not(.hidden)'));
+  }
+
+  function setActive(idx: number) {
+    items().forEach((el, i) => el.classList.toggle('active', i === idx));
+  }
+
+  function activeIndex() {
+    return items().findIndex(el => el.classList.contains('active'));
+  }
+
+  function navigate(el: HTMLElement) {
+    const href = el.dataset.href!;
+    const external = el.classList.contains('cp-external');
+    close();
+    if (external) window.open(href, '_blank', 'noopener');
+    else window.location.href = href;
+  }
+
+  function filterItems(query: string) {
+    const q = query.toLowerCase().trim();
+    list.querySelectorAll<HTMLElement>('.cp-item').forEach(el => {
+      const text     = el.textContent?.toLowerCase() ?? '';
+      const keywords = el.dataset.keywords?.toLowerCase() ?? '';
+      el.classList.toggle('hidden', q !== '' && !text.includes(q) && !keywords.includes(q));
+    });
+    // hide groups with no visible items
+    list.querySelectorAll<HTMLElement>('.cp-group').forEach(group => {
+      let next = group.nextElementSibling as HTMLElement | null;
+      let hasVisible = false;
+      while (next && !next.classList.contains('cp-group')) {
+        if (!next.classList.contains('hidden')) hasVisible = true;
+        next = next.nextElementSibling as HTMLElement | null;
+      }
+      group.style.display = hasVisible ? '' : 'none';
+    });
+  }
+
+  // keyboard shortcut
+  document.addEventListener('keydown', e => {
+    const isMac = navigator.platform.toUpperCase().includes('MAC');
+    if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      modal.classList.contains('open') ? close() : open();
+      return;
+    }
+    if (!modal.classList.contains('open')) return;
+    if (e.key === 'Escape') { close(); return; }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const all = items(); const i = activeIndex();
+      setActive(Math.min(i + 1, all.length - 1));
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(Math.max(activeIndex() - 1, 0));
+    }
+    if (e.key === 'Enter') {
+      const el = items()[activeIndex()];
+      if (el) navigate(el);
+    }
+  });
+
+  input.addEventListener('input', () => {
+    filterItems(input.value);
+    setActive(0);
+  });
+
+  list.addEventListener('click', e => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('.cp-item');
+    if (el) navigate(el);
+  });
+
+  backdrop.addEventListener('click', close);
+
+  // expose open() for the nav button
+  (window as any).__cpOpen = open;
+</script>
