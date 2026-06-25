@@ -98,6 +98,14 @@ import Footer from '../components/Footer.astro';
         background: var(--accent);
         color: #0d0d0d;
       }
+
+      .hint {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: rgba(255,255,255,0.1);
+        margin: 0;
+        letter-spacing: 0.06em;
+      }
     </style>
   </head>
   <body>
@@ -116,6 +124,7 @@ import Footer from '../components/Footer.astro';
         <h1 class="title">404</h1>
         <p class="subtitle">this page doesn't exist.</p>
         <a class="home-link" href="/">← back to home</a>
+        <p class="hint">try the classics</p>
       </div>
     </div>
     <Footer />
