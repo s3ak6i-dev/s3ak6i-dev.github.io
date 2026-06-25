@@ -58,6 +58,31 @@ const ogImage = new URL(image, Astro.site).toString();
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
 
+<!-- Scroll fade-in -->
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const selectors = [
+      '.section',
+      '.card',
+      '.gh-widget',
+      '.post-item',
+      '.project-card',
+      '.prose > *',
+      '.intro',
+    ];
+    const els = document.querySelectorAll(selectors.join(','));
+    els.forEach((el, i) => {
+      el.classList.add('fade-up');
+      el.style.transitionDelay = `${(i % 4) * 60}ms`;
+    });
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); observer.unobserve(e.target); } }),
+      { threshold: 0.08 }
+    );
+    els.forEach(el => observer.observe(el));
+  });
+</script>
+
 <!-- Netlify Identity -->
 <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script is:inline>
