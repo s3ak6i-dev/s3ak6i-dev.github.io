@@ -98,6 +98,17 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 				border-radius: 6px;
 			}
 
+			#read-progress {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 2px;
+				background: var(--accent);
+				z-index: 9999;
+				width: 0%;
+				transition: width 0.08s linear;
+			}
+
 			@media (max-width: 640px) {
 				.post-title {
 					font-size: 1.875rem;
@@ -107,6 +118,7 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 	</head>
 
 	<body>
+		<div id="read-progress" aria-hidden="true"></div>
 		<Header />
 		<main style="padding: 0; max-width: 100%; width: 100%;">
 			<article>
@@ -134,5 +146,18 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 			</article>
 		</main>
 		<Footer />
+		<script>
+			const bar = document.getElementById('read-progress') as HTMLDivElement;
+			function updateProgress() {
+				const article = document.querySelector('article');
+				if (!article || !bar) return;
+				const { top, height } = article.getBoundingClientRect();
+				const scrolled = Math.max(0, -top);
+				const total = height - window.innerHeight;
+				bar.style.width = total > 0 ? Math.min(100, (scrolled / total) * 100) + '%' : '0%';
+			}
+			window.addEventListener('scroll', updateProgress, { passive: true });
+			updateProgress();
+		</script>
 	</body>
 </html>

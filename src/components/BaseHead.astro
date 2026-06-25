@@ -82,6 +82,21 @@ const ogImage = new URL(image, Astro.site).toString();
       { threshold: 0.08 }
     );
     els.forEach(el => observer.observe(el));
+
+    // Back to top
+    const btt = document.createElement('button');
+    btt.setAttribute('aria-label', 'Back to top');
+    btt.textContent = '↑';
+    btt.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;width:36px;height:36px;border-radius:50%;background:rgba(232,96,44,0.12);border:1px solid rgba(232,96,44,0.35);color:var(--accent);font-size:15px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity 0.25s,background 0.15s;z-index:500;font-family:JetBrains Mono,monospace;line-height:1;';
+    document.body.appendChild(btt);
+    btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    btt.addEventListener('mouseenter', () => { btt.style.background = 'rgba(232,96,44,0.28)'; });
+    btt.addEventListener('mouseleave', () => { btt.style.background = 'rgba(232,96,44,0.12)'; });
+    window.addEventListener('scroll', () => {
+      const show = window.scrollY > 300;
+      btt.style.opacity = show ? '1' : '0';
+      btt.style.pointerEvents = show ? 'auto' : 'none';
+    }, { passive: true });
   });
 </script>
 
