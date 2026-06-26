@@ -3,10 +3,11 @@ import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
 import PageHero from '../../components/PageHero.astro';
-import { getBlogPosts } from '../../lib/contentful';
+import { getBlogPosts, getNotes } from '../../lib/contentful';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
 const posts = await getBlogPosts();
+const notes = await getNotes();
 ---
 
 <!doctype html>
@@ -21,6 +22,37 @@ const posts = await getBlogPosts();
 				padding: 3rem 1rem 4rem;
 			}
 
+			/* Tabs */
+			.tabs {
+				display: flex;
+				gap: 0.25rem;
+				margin-bottom: 2.5rem;
+				border-bottom: 1px solid var(--border);
+				padding-bottom: 0;
+			}
+
+			.tab {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 12px;
+				letter-spacing: 0.08em;
+				color: var(--text-muted);
+				background: none;
+				border: none;
+				border-bottom: 2px solid transparent;
+				padding: 0.5rem 1rem;
+				cursor: pointer;
+				margin-bottom: -1px;
+				transition: color 0.15s, border-color 0.15s;
+			}
+
+			.tab:hover { color: var(--text); }
+
+			.tab.active {
+				color: var(--accent);
+				border-bottom-color: var(--accent);
+			}
+
+			/* Essays */
 			.post-list {
 				list-style: none;
 				margin: 0;
@@ -98,9 +130,7 @@ const posts = await getBlogPosts();
 				transition: color 0.15s;
 			}
 
-			.post-item:hover .post-title {
-				color: var(--text);
-			}
+			.post-item:hover .post-title { color: var(--text); }
 
 			.post-date {
 				font-family: 'JetBrains Mono', monospace;
@@ -117,20 +147,88 @@ const posts = await getBlogPosts();
 				line-height: 1.5;
 			}
 
+			/* Notes grid */
+			.notes-grid {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 1rem;
+			}
+
+			.note-card {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 1.25rem;
+				text-decoration: none;
+				display: flex;
+				flex-direction: column;
+				gap: 0.625rem;
+				transition: border-color 0.15s, transform 0.15s;
+			}
+
+			.note-card:hover {
+				border-color: var(--accent);
+				transform: translateY(-2px);
+			}
+
+			.note-category {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 10px;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+				color: var(--accent);
+				background: rgba(232,96,44,0.08);
+				border: 1px solid rgba(232,96,44,0.2);
+				border-radius: 4px;
+				padding: 2px 8px;
+				align-self: flex-start;
+			}
+
+			.note-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1rem;
+				font-weight: 500;
+				color: var(--text);
+				line-height: 1.35;
+				margin: 0;
+			}
+
+			.note-desc {
+				font-size: 0.875rem;
+				color: var(--text-muted);
+				line-height: 1.55;
+				margin: 0;
+				flex: 1;
+				display: -webkit-box;
+				-webkit-line-clamp: 3;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+
+			.note-meta {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				color: rgba(255,255,255,0.2);
+				margin-top: auto;
+			}
+
+			.notes-empty {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 13px;
+				color: var(--text-muted);
+				padding: 3rem 0;
+				text-align: center;
+			}
+
+			@media (max-width: 720px) {
+				.notes-grid { grid-template-columns: repeat(2, 1fr); }
+			}
+
 			@media (max-width: 520px) {
-				.post-thumb {
-					width: 64px;
-					height: 48px;
-				}
-
-				.post-meta-row {
-					flex-direction: column;
-					gap: 0.125rem;
-				}
-
-				.post-date {
-					font-size: 12px;
-				}
+				.notes-grid { grid-template-columns: 1fr; }
+				.post-thumb { width: 64px; height: 48px; }
+				.post-meta-row { flex-direction: column; gap: 0.125rem; }
+				.post-date { font-size: 12px; }
 			}
 		</style>
 	</head>
@@ -138,52 +236,107 @@ const posts = await getBlogPosts();
 		<Header />
 		<PageHero
 			title="Writing"
-			subtitle="Notes on AI, systems, and building things."
+			subtitle="Essays and notes on AI, systems, and building things."
 			gifSrc="https://media1.tenor.com/m/796hzQFEHqoAAAAC/uy-rick-y-morty.gif"
 			gifAlt="Rick and Morty"
 		/>
 		<main style="padding: 0; max-width: 100%; width: 100%;">
 			<div class="blog-listing">
-				<ul class="post-list">
-					{
-						posts.map((post) => {
-							const dateStr = new Date(post.pubDate).toLocaleDateString('en-US', {
-								year: 'numeric',
-								month: 'short',
-								day: 'numeric',
-							});
-							return (
-								<li class="post-item">
-									<div class="post-item-inner">
-										<a href={`/blog/${post.slug}/`} class="post-thumb" tabindex="-1" aria-hidden="true">
-											{post.heroImage ? (
-												<img src={post.heroImage} alt="" />
-											) : (
-												<svg class="post-thumb-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-													<rect x="3" y="3" width="18" height="18" rx="2"/>
-													<path d="M3 9h18M9 21V9"/>
-												</svg>
-											)}
-										</a>
-										<div class="post-content">
-											<div class="post-meta-row">
-												<a class="post-title" href={`/blog/${post.slug}/`}>
-													{post.title}
-												</a>
-												<span class="post-date">{dateStr}</span>
+
+				<div class="tabs">
+					<button class="tab active" data-tab="essays">Essays</button>
+					<button class="tab" data-tab="notes">Notes</button>
+				</div>
+
+				<!-- Essays -->
+				<div id="panel-essays">
+					<ul class="post-list">
+						{
+							posts.map((post) => {
+								const dateStr = new Date(post.pubDate).toLocaleDateString('en-US', {
+									year: 'numeric',
+									month: 'short',
+									day: 'numeric',
+								});
+								return (
+									<li class="post-item">
+										<div class="post-item-inner">
+											<a href={`/blog/${post.slug}/`} class="post-thumb" tabindex="-1" aria-hidden="true">
+												{post.heroImage ? (
+													<img src={post.heroImage} alt="" />
+												) : (
+													<svg class="post-thumb-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+														<rect x="3" y="3" width="18" height="18" rx="2"/>
+														<path d="M3 9h18M9 21V9"/>
+													</svg>
+												)}
+											</a>
+											<div class="post-content">
+												<div class="post-meta-row">
+													<a class="post-title" href={`/blog/${post.slug}/`}>
+														{post.title}
+													</a>
+													<span class="post-date">{dateStr}</span>
+												</div>
+												{post.description && (
+													<p class="post-description">{post.description}</p>
+												)}
 											</div>
-											{post.description && (
-												<p class="post-description">{post.description}</p>
-											)}
 										</div>
-									</div>
-								</li>
-							);
-						})
-					}
-				</ul>
+									</li>
+								);
+							})
+						}
+					</ul>
+				</div>
+
+				<!-- Notes -->
+				<div id="panel-notes" style="display:none">
+					{notes.length === 0 ? (
+						<p class="notes-empty">no notes yet — check back soon.</p>
+					) : (
+						<div class="notes-grid">
+							{notes.map((note) => {
+								const dateStr = new Date(note.pubDate).toLocaleDateString('en-US', {
+									year: 'numeric',
+									month: 'short',
+									day: 'numeric',
+								});
+								const words = note.bodyHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+								const mins = Math.ceil(words / 200) || 1;
+								return (
+									<a class="note-card" href={`/notes/${note.slug}/`}>
+										<span class="note-category">{note.category}</span>
+										<p class="note-title">{note.title}</p>
+										{note.description && <p class="note-desc">{note.description}</p>}
+										<span class="note-meta">{dateStr} · {mins} min</span>
+									</a>
+								);
+							})}
+						</div>
+					)}
+				</div>
+
 			</div>
 		</main>
 		<Footer />
+
+		<script>
+			const tabs   = document.querySelectorAll<HTMLButtonElement>('.tab');
+			const essays = document.getElementById('panel-essays')!;
+			const notes  = document.getElementById('panel-notes')!;
+
+			function activate(tab: string) {
+				tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+				essays.style.display = tab === 'essays' ? '' : 'none';
+				notes.style.display  = tab === 'notes'  ? '' : 'none';
+				history.replaceState(null, '', tab === 'notes' ? '#notes' : '#essays');
+			}
+
+			tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab!)));
+
+			// activate from URL hash on load
+			if (location.hash === '#notes') activate('notes');
+		</script>
 	</body>
 </html>

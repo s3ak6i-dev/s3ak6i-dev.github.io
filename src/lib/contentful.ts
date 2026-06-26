@@ -37,6 +37,16 @@ export interface Now {
   bodyHtml:    string;
 }
 
+export interface Note {
+  title:       string;
+  slug:        string;
+  description: string;
+  category:    string;
+  pubDate:     string;
+  source?:     string;
+  bodyHtml:    string;
+}
+
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function assetUrl(asset: any): string | undefined {
@@ -139,6 +149,52 @@ export async function getProject(slug: string): Promise<Project | null> {
     demo:        f.demo,
     bodyHtml:    toHtml(f.body) || undefined,
   };
+}
+
+export async function getNotes(): Promise<Note[]> {
+  try {
+    const res = await client.getEntries({
+      content_type: 'note',
+      order:        ['-fields.pubDate' as any],
+    });
+    return res.items.map((item: any) => {
+      const f = item.fields;
+      return {
+        title:       f.title,
+        slug:        f.slug,
+        description: f.description ?? '',
+        category:    f.category ?? 'note',
+        pubDate:     f.pubDate,
+        source:      f.source,
+        bodyHtml:    toHtml(f.body),
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function getNote(slug: string): Promise<Note | null> {
+  try {
+    const res = await client.getEntries({
+      content_type:  'note',
+      'fields.slug': slug,
+      limit:         1,
+    } as any);
+    if (!res.items.length) return null;
+    const f = (res.items[0] as any).fields;
+    return {
+      title:       f.title,
+      slug:        f.slug,
+      description: f.description ?? '',
+      category:    f.category ?? 'note',
+      pubDate:     f.pubDate,
+      source:      f.source,
+      bodyHtml:    toHtml(f.body),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function getNow(): Promise<Now | null> {
