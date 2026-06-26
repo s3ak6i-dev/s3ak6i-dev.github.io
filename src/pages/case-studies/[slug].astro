@@ -1,0 +1,298 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getCaseStudies, getCaseStudy } from '../../lib/contentful';
+import { SITE_TITLE } from '../../consts';
+
+export async function getStaticPaths() {
+  const all = await getCaseStudies();
+  return all.map((cs) => ({ params: { slug: cs.slug } }));
+}
+
+const { slug } = Astro.params;
+const cs = await getCaseStudy(slug!);
+if (!cs) return Astro.redirect('/projects#case-studies');
+
+const ANGLES = [
+  { key: 'product',      label: 'Product',       icon: '>_ product'      },
+  { key: 'technical',    label: 'Technical',     icon: '>_ technical'    },
+  { key: 'business',     label: 'Business',      icon: '>_ business'     },
+  { key: 'socialImpact', label: 'Social Impact', icon: '>_ social impact' },
+] as const;
+
+const filled = ANGLES.filter(a => cs[a.key]);
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={`${cs.title} — Case Study — ${SITE_TITLE}`} description={cs.summary} />
+    <style>
+      .wrap {
+        width: 720px;
+        max-width: calc(100% - 2rem);
+        margin: 0 auto;
+        padding: 3rem 1rem 5rem;
+      }
+
+      .back {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--text-muted);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        margin-bottom: 2.5rem;
+        transition: color 0.15s;
+      }
+
+      .back:hover { color: var(--accent); }
+
+      .cs-header { margin-bottom: 2rem; }
+
+      .cs-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin: 0 0 0.75rem;
+      }
+
+      .cs-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.15;
+        margin: 0 0 0.75rem;
+      }
+
+      .cs-year {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: var(--text-muted);
+        display: block;
+        margin-bottom: 1rem;
+      }
+
+      .cs-summary {
+        font-size: 1rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin: 0 0 1.5rem;
+      }
+
+      .cs-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 2px 7px;
+      }
+
+      .link-btn {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 4px;
+        padding: 3px 10px;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+      }
+
+      .link-btn:hover { background: var(--accent); color: #0d0d0d; }
+
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 2rem 0;
+      }
+
+      /* Accordion */
+      .accordion { display: flex; flex-direction: column; gap: 0; }
+
+      .acc-item {
+        border-top: 1px solid var(--border);
+      }
+
+      .acc-item:first-child { border-top: none; }
+
+      .acc-item:last-child { border-bottom: 1px solid var(--border); }
+
+      .acc-trigger {
+        width: 100%;
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 0;
+        cursor: pointer;
+        gap: 1rem;
+        border-left: 2px solid transparent;
+        padding-left: 0;
+        transition: border-color 0.15s, padding-left 0.15s;
+      }
+
+      .acc-item.open .acc-trigger {
+        border-left-color: var(--accent);
+        padding-left: 1rem;
+      }
+
+      .acc-icon {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.08em;
+        text-align: left;
+        flex: 1;
+      }
+
+      .acc-label {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text);
+        flex: 2;
+      }
+
+      .acc-chevron {
+        color: var(--text-muted);
+        font-size: 12px;
+        transition: transform 0.25s;
+        flex-shrink: 0;
+      }
+
+      .acc-item.open .acc-chevron { transform: rotate(180deg); }
+
+      .acc-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+        padding-left: 1rem;
+      }
+
+      .acc-item.open .acc-body { max-height: 2000px; }
+
+      .acc-content {
+        padding-bottom: 1.5rem;
+        font-size: 0.9375rem;
+        color: var(--text-muted);
+        line-height: 1.8;
+      }
+
+      .acc-content :global(h2) {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 1.5rem 0 0.5rem;
+      }
+
+      .acc-content :global(h3) {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text);
+        margin: 1.25rem 0 0.4rem;
+      }
+
+      .acc-content :global(p)      { margin-bottom: 1rem; }
+      .acc-content :global(strong) { color: var(--text); font-weight: 600; }
+      .acc-content :global(ul), .acc-content :global(ol) {
+        padding-left: 1.25rem;
+        margin-bottom: 1rem;
+      }
+      .acc-content :global(li) { margin-bottom: 0.35rem; }
+      .acc-content :global(a)  { color: var(--accent); }
+
+      .acc-content :global(code) {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85em;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+        color: var(--text);
+      }
+
+      @media (max-width: 640px) {
+        .cs-title { font-size: 1.75rem; }
+        .acc-icon  { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+    <main style="padding: 0; max-width: 100%; width: 100%;">
+      <div class="wrap">
+
+        <a class="back" href="/projects#case-studies">← back to case studies</a>
+
+        <div class="cs-header">
+          <p class="cs-label">&gt;_ case study</p>
+          <h1 class="cs-title">{cs.title}</h1>
+          <span class="cs-year">{cs.year}</span>
+          <p class="cs-summary">{cs.summary}</p>
+
+          {(cs.stack?.length || cs.github || cs.demo) && (
+            <div class="cs-meta">
+              {cs.stack?.map(t => <span class="tag">{t}</span>)}
+              {cs.github && <a class="link-btn" href={cs.github} target="_blank" rel="noopener noreferrer">GitHub →</a>}
+              {cs.demo   && <a class="link-btn" href={cs.demo}   target="_blank" rel="noopener noreferrer">Live demo →</a>}
+            </div>
+          )}
+        </div>
+
+        <hr class="divider" />
+
+        <div class="accordion" id="accordion">
+          {filled.map((angle, i) => (
+            <div class={`acc-item${i === 0 ? ' open' : ''}`} data-index={i}>
+              <button class="acc-trigger" aria-expanded={i === 0 ? 'true' : 'false'}>
+                <span class="acc-icon">{angle.icon}</span>
+                <span class="acc-chevron">▾</span>
+              </button>
+              <div class="acc-body">
+                <div class="acc-content" set:html={cs[angle.key]} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </main>
+    <Footer />
+
+    <script>
+      document.querySelectorAll<HTMLElement>('.acc-item').forEach(item => {
+        const trigger = item.querySelector('.acc-trigger') as HTMLButtonElement;
+        trigger.addEventListener('click', () => {
+          const isOpen = item.classList.contains('open');
+          // close all
+          document.querySelectorAll('.acc-item').forEach(el => {
+            el.classList.remove('open');
+            el.querySelector('.acc-trigger')?.setAttribute('aria-expanded', 'false');
+          });
+          // open clicked if it was closed
+          if (!isOpen) {
+            item.classList.add('open');
+            trigger.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

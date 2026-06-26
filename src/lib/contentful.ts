@@ -151,6 +151,74 @@ export async function getProject(slug: string): Promise<Project | null> {
   };
 }
 
+export interface CaseStudy {
+  title:         string;
+  slug:          string;
+  year:          number;
+  summary:       string;
+  product?:      string;
+  technical?:    string;
+  business?:     string;
+  socialImpact?: string;
+  stack?:        string[];
+  github?:       string;
+  demo?:         string;
+}
+
+export async function getCaseStudies(): Promise<CaseStudy[]> {
+  try {
+    const res = await client.getEntries({
+      content_type: 'caseStudy',
+      order:        ['-fields.year' as any],
+    });
+    return res.items.map((item: any) => {
+      const f = item.fields;
+      return {
+        title:        f.title,
+        slug:         f.slug,
+        year:         f.year,
+        summary:      f.summary ?? '',
+        product:      f.product      ? toHtml(f.product)      : undefined,
+        technical:    f.technical    ? toHtml(f.technical)    : undefined,
+        business:     f.business     ? toHtml(f.business)     : undefined,
+        socialImpact: f.socialImpact ? toHtml(f.socialImpact) : undefined,
+        stack:        f.stack ?? [],
+        github:       f.github,
+        demo:         f.demo,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
+  try {
+    const res = await client.getEntries({
+      content_type:  'caseStudy',
+      'fields.slug': slug,
+      limit:         1,
+    } as any);
+    if (!res.items.length) return null;
+    const f = (res.items[0] as any).fields;
+    return {
+      title:        f.title,
+      slug:         f.slug,
+      year:         f.year,
+      summary:      f.summary ?? '',
+      product:      f.product      ? toHtml(f.product)      : undefined,
+      technical:    f.technical    ? toHtml(f.technical)    : undefined,
+      business:     f.business     ? toHtml(f.business)     : undefined,
+      socialImpact: f.socialImpact ? toHtml(f.socialImpact) : undefined,
+      stack:        f.stack ?? [],
+      github:       f.github,
+      demo:         f.demo,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getNotes(): Promise<Note[]> {
   try {
     const res = await client.getEntries({
