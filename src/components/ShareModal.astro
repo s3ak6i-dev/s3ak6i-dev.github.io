@@ -275,6 +275,13 @@ const { title, image } = Astro.props;
 		const facebookLink = document.getElementById('share-facebook') as HTMLAnchorElement;
 		const emailLink    = document.getElementById('share-email') as HTMLAnchorElement;
 
+		// Move the backdrop/modal to be direct children of <body> — otherwise they can
+		// end up nested inside an ancestor with `transform` (e.g. the scroll fade-up
+		// animation), which traps `position: fixed` inside that ancestor's stacking
+		// context instead of the real viewport, rendering the modal behind other content.
+		document.body.appendChild(backdrop);
+		document.body.appendChild(modal);
+
 		function open() {
 			const url   = window.location.href;
 			const title = copyBtn.dataset.title ?? document.title;
