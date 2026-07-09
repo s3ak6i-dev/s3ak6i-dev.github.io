@@ -1,5 +1,8 @@
 ---
 import { GITHUB_URL, LINKEDIN_URL } from '../consts';
+import { getBlogPosts, getNotes } from '../lib/contentful';
+
+const [posts, notes] = await Promise.all([getBlogPosts(), getNotes()]);
 ---
 
 <!-- Overlay -->
@@ -30,6 +33,26 @@ import { GITHUB_URL, LINKEDIN_URL } from '../consts';
     <li class="cp-item" role="option" data-href="/now"         data-keywords="now current building reading">Now <span class="cp-path">/now</span></li>
     <li class="cp-item" role="option" data-href="/contact"     data-keywords="contact email message">Contact <span class="cp-path">/contact</span></li>
     <li class="cp-item" role="option" data-href="/uses"        data-keywords="uses tools stack setup">Uses <span class="cp-path">/uses</span></li>
+    {posts.length > 0 && (
+      <>
+        <li class="cp-group">WRITING</li>
+        {posts.map((post) => (
+          <li class="cp-item" role="option" data-href={`/blog/${post.slug}`} data-keywords={`writing essay ${post.title} ${post.description ?? ''}`.toLowerCase()}>
+            {post.title} <span class="cp-path">/blog</span>
+          </li>
+        ))}
+      </>
+    )}
+    {notes.length > 0 && (
+      <>
+        <li class="cp-group">NOTES</li>
+        {notes.map((note) => (
+          <li class="cp-item" role="option" data-href={`/notes/${note.slug}`} data-keywords={`note ${note.category} ${note.title} ${note.description ?? ''}`.toLowerCase()}>
+            {note.title} <span class="cp-path">/notes</span>
+          </li>
+        ))}
+      </>
+    )}
     <li class="cp-group">LINKS</li>
     <li class="cp-item cp-external" role="option" data-href={GITHUB_URL}   data-keywords="github code repos">GitHub <span class="cp-path">↗</span></li>
     <li class="cp-item cp-external" role="option" data-href={LINKEDIN_URL} data-keywords="linkedin profile">LinkedIn <span class="cp-path">↗</span></li>

@@ -2,9 +2,12 @@
 interface Props {
 	title:      string;
 	image?:     string;
+	githubUrl?: string;
+	label?:     string;
 }
 
-const { title, image } = Astro.props;
+const { title, image, githubUrl, label = 'post' } = Astro.props;
+const repoLabel = githubUrl ? new URL(githubUrl).pathname.replace(/^\/|\/$/g, '') : undefined;
 ---
 
 <button class="share-trigger" id="share-trigger" type="button" aria-haspopup="dialog">
@@ -18,9 +21,9 @@ const { title, image } = Astro.props;
 </button>
 
 <div class="share-backdrop" id="share-backdrop"></div>
-<div class="share-modal" id="share-modal" role="dialog" aria-modal="true" aria-label="Share this post">
+<div class="share-modal" id="share-modal" role="dialog" aria-modal="true" aria-label={`Share this ${label}`}>
 	<div class="share-modal-header">
-		<span>Share this post</span>
+		<span>Share this {label}</span>
 		<button class="share-close" id="share-close" aria-label="Close">✕</button>
 	</div>
 
@@ -29,6 +32,14 @@ const { title, image } = Astro.props;
 		<div class="share-preview-text">
 			<p class="share-preview-title">{title}</p>
 			<p class="share-preview-url" id="share-preview-url">&nbsp;</p>
+			{repoLabel && (
+				<p class="share-preview-repo">
+					<svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+						<path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.11.82-.26.82-.58l-.01-2.04c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.4 11.4 0 0 1 6 0c2.29-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.48 5.92.43.36.81 1.1.81 2.22l-.01 3.29c0 .32.21.7.82.58A12 12 0 0 0 12 .3Z"/>
+					</svg>
+					{repoLabel}
+				</p>
+			)}
 		</div>
 	</div>
 
@@ -79,6 +90,17 @@ const { title, image } = Astro.props;
 			</span>
 			<span>Email</span>
 		</a>
+
+		{githubUrl && (
+			<a class="share-item" href={githubUrl} target="_blank" rel="noopener noreferrer">
+				<span class="share-icon">
+					<svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17">
+						<path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.11.82-.26.82-.58l-.01-2.04c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.4 11.4 0 0 1 6 0c2.29-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.48 5.92.43.36.81 1.1.81 2.22l-.01 3.29c0 .32.21.7.82.58A12 12 0 0 0 12 .3Z"/>
+					</svg>
+				</span>
+				<span>GitHub</span>
+			</a>
+		)}
 
 		<button class="share-item" id="share-more" type="button" style="display:none">
 			<span class="share-icon">
@@ -218,6 +240,19 @@ const { title, image } = Astro.props;
 		font-size: 11px;
 		color: var(--text-muted);
 		margin: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.share-preview-repo {
+		display: flex;
+		align-items: center;
+		gap: 0.3rem;
+		font-family: 'JetBrains Mono', monospace;
+		font-size: 11px;
+		color: var(--accent);
+		margin: 0.25rem 0 0;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;

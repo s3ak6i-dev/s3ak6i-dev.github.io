@@ -2,6 +2,7 @@
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
+import ShareModal from '../../components/ShareModal.astro';
 import { getProjects, getProject } from '../../lib/contentful';
 import { SITE_TITLE } from '../../consts';
 
@@ -207,6 +208,9 @@ if (!project) return Astro.redirect('/projects');
 					<span>{project.year}</span>
 					<span class={`status-badge status-${project.status}`}>
 						{project.status}
+					</span>
+					<span class="share-slot">
+						<ShareModal title={project.name} image={project.image} githubUrl={project.github} label="project" />
 					</span>
 				</div>
 

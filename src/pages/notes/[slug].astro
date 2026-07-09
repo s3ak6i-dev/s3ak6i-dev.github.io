@@ -203,7 +203,7 @@ const formattedDate = new Date(note.pubDate).toLocaleDateString('en-US', {
             <div class="note-meta">
               <span>{formattedDate}</span>
               <span>{readingTime} min read</span>
-              <span class="share-slot"><ShareModal title={note.title} /></span>
+              <span class="share-slot"><ShareModal title={note.title} label="note" /></span>
             </div>
             {note.source && (
               <span class="note-source">source: <a href={note.source} target="_blank" rel="noopener noreferrer">{note.source}</a></span>

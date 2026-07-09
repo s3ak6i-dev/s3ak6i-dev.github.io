@@ -4,6 +4,11 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import ShareModal from '../components/ShareModal.astro';
 
+interface AdjacentPost {
+	title: string;
+	slug:  string;
+}
+
 interface Props {
 	title:        string;
 	description:  string;
@@ -11,9 +16,11 @@ interface Props {
 	updatedDate?: Date;
 	heroImage?:   string;
 	bodyHtml?:    string;
+	prevPost?:    AdjacentPost | null;
+	nextPost?:    AdjacentPost | null;
 }
 
-const { title, description, pubDate, updatedDate, heroImage, bodyHtml } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, bodyHtml, prevPost, nextPost } = Astro.props;
 
 const wordCount = bodyHtml ? bodyHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length : 0;
 const readingTime = Math.ceil(wordCount / 200) || 1;
@@ -99,6 +106,64 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 				border-radius: 6px;
 			}
 
+			.post-nav {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 1rem;
+				margin-top: 3rem;
+				padding-top: 2rem;
+				border-top: 1px solid var(--border);
+			}
+
+			.post-nav-link {
+				display: flex;
+				flex-direction: column;
+				gap: 0.375rem;
+				text-decoration: none;
+				padding: 1rem 1.25rem;
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				transition: border-color 0.15s;
+			}
+
+			.post-nav-link:hover {
+				border-color: var(--accent);
+			}
+
+			.post-nav-next {
+				grid-column: 2;
+				text-align: right;
+				align-items: flex-end;
+			}
+
+			.post-nav-label {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--accent);
+			}
+
+			.post-nav-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 0.9375rem;
+				font-weight: 500;
+				color: var(--text);
+				line-height: 1.4;
+			}
+
+			@media (max-width: 560px) {
+				.post-nav {
+					grid-template-columns: 1fr;
+				}
+
+				.post-nav-next {
+					grid-column: 1;
+					text-align: left;
+					align-items: flex-start;
+				}
+			}
+
 			#read-progress {
 				position: fixed;
 				top: 0;
@@ -144,6 +209,23 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 
 					<hr class="divider" />
 					{bodyHtml ? <div set:html={bodyHtml} /> : <slot />}
+
+					{(prevPost || nextPost) && (
+						<nav class="post-nav">
+							{prevPost ? (
+								<a class="post-nav-link post-nav-prev" href={`/blog/${prevPost.slug}/`}>
+									<span class="post-nav-label">← Older</span>
+									<span class="post-nav-title">{prevPost.title}</span>
+								</a>
+							) : <span />}
+							{nextPost && (
+								<a class="post-nav-link post-nav-next" href={`/blog/${nextPost.slug}/`}>
+									<span class="post-nav-label">Newer →</span>
+									<span class="post-nav-title">{nextPost.title}</span>
+								</a>
+							)}
+						</nav>
+					)}
 				</div>
 			</article>
 		</main>

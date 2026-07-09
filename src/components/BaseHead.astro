@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Analytics from '@vercel/analytics/astro';
 import { SITE_TITLE, SITE_URL } from '../consts';
 
 interface Props {
@@ -99,6 +100,9 @@ const ogImage = new URL(image, Astro.site).toString();
     }, { passive: true });
   });
 </script>
+
+<!-- Vercel Web Analytics -->
+<Analytics />
 
 <!-- Netlify Identity -->
 <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>

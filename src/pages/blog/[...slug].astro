@@ -4,13 +4,18 @@ import BlogPost from '../../layouts/BlogPost.astro';
 
 export async function getStaticPaths() {
 	const posts = await getBlogPosts();
-	return posts.map((post) => ({
+	return posts.map((post, i) => ({
 		params: { slug: post.slug },
-		props:  { post },
+		props:  {
+			post,
+			// posts are ordered newest-first, so the next index is the older post
+			prevPost: posts[i + 1] ?? null,
+			nextPost: posts[i - 1] ?? null,
+		},
 	}));
 }
 
-const { post } = Astro.props;
+const { post, prevPost, nextPost } = Astro.props;
 const full = await getBlogPost(post.slug);
 ---
 
@@ -21,4 +26,6 @@ const full = await getBlogPost(post.slug);
 	updatedDate={full!.updatedDate ? new Date(full!.updatedDate) : undefined}
 	heroImage={full!.heroImage}
 	bodyHtml={full!.bodyHtml}
+	prevPost={prevPost}
+	nextPost={nextPost}
 />
