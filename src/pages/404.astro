@@ -130,8 +130,15 @@ import Footer from '../components/Footer.astro';
     <Footer />
 
     <script>
-      (() => {
-        const canvas  = document.getElementById('dot-canvas') as HTMLCanvasElement;
+      // astro:page-load fires on the initial load AND after every View
+      // Transitions navigation (unlike a plain top-level script, which only
+      // ever runs once per module) — this stops the previous loop/listeners
+      // before wiring up whichever page just loaded.
+      document.addEventListener('astro:page-load', () => {
+        (window as any).__notFoundCleanup?.();
+
+        const canvas  = document.getElementById('dot-canvas') as HTMLCanvasElement | null;
+        if (!canvas) return;
         const ctx     = canvas.getContext('2d')!;
         const SPACING = 28, DOT_R = 1.5, CURSOR_R = 150, REPEL = 6;
         const SPRING  = 0.10, DAMP = 0.70;
@@ -140,11 +147,12 @@ import Footer from '../components/Footer.astro';
         let W: number, H: number, cols: number, rows: number;
         let dots: { ox: number; oy: number; x: number; y: number; vx: number; vy: number }[] = [];
         let mx = -9999, my = -9999;
+        let running = true;
 
         function build() {
           const dpr = window.devicePixelRatio || 1;
-          W = canvas.offsetWidth; H = canvas.offsetHeight;
-          canvas.width = W * dpr; canvas.height = H * dpr;
+          W = canvas!.offsetWidth; H = canvas!.offsetHeight;
+          canvas!.width = W * dpr; canvas!.height = H * dpr;
           ctx.scale(dpr, dpr);
           cols = Math.ceil(W / SPACING) + 1;
           rows = Math.ceil(H / SPACING) + 1;
@@ -155,6 +163,7 @@ import Footer from '../components/Footer.astro';
         }
 
         function tick() {
+          if (!running) return;
           ctx.clearRect(0, 0, W, H);
           for (const d of dots) {
             const dx = d.x - mx, dy = d.y - my;
@@ -182,14 +191,23 @@ import Footer from '../components/Footer.astro';
 
         build();
         window.addEventListener('resize', build);
-        window.addEventListener('mousemove', e => {
-          const rect = canvas.getBoundingClientRect();
+        const onMouseMove = (e: MouseEvent) => {
+          const rect = canvas!.getBoundingClientRect();
           mx = e.clientX - rect.left;
           my = e.clientY - rect.top;
-        });
-        window.addEventListener('mouseleave', () => { mx = -9999; my = -9999; });
+        };
+        const onMouseLeave = () => { mx = -9999; my = -9999; };
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseleave', onMouseLeave);
         tick();
-      })();
+
+        (window as any).__notFoundCleanup = () => {
+          running = false;
+          window.removeEventListener('resize', build);
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseleave', onMouseLeave);
+        };
+      });
     </script>
   </body>
 </html>

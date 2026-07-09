@@ -322,21 +322,27 @@ const notes = await getNotes();
 		<Footer />
 
 		<script>
-			const tabs   = document.querySelectorAll<HTMLButtonElement>('.tab');
-			const essays = document.getElementById('panel-essays')!;
-			const notes  = document.getElementById('panel-notes')!;
+			// Revisiting /blog via a View Transitions navigation doesn't re-execute
+			// this module (cached per URL) — astro:page-load re-runs it so the tabs
+			// wire up against the freshly-swapped-in elements each time.
+			document.addEventListener('astro:page-load', () => {
+				const tabs   = document.querySelectorAll<HTMLButtonElement>('.tab');
+				const essays = document.getElementById('panel-essays');
+				const notes  = document.getElementById('panel-notes');
+				if (!essays || !notes) return;
 
-			function activate(tab: string) {
-				tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-				essays.style.display = tab === 'essays' ? '' : 'none';
-				notes.style.display  = tab === 'notes'  ? '' : 'none';
-				history.replaceState(null, '', tab === 'notes' ? '#notes' : '#essays');
-			}
+				function activate(tab: string) {
+					tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+					essays!.style.display = tab === 'essays' ? '' : 'none';
+					notes!.style.display  = tab === 'notes'  ? '' : 'none';
+					history.replaceState(null, '', tab === 'notes' ? '#notes' : '#essays');
+				}
 
-			tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab!)));
+				tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab!)));
 
-			// activate from URL hash on load
-			if (location.hash === '#notes') activate('notes');
+				// activate from URL hash on load
+				if (location.hash === '#notes') activate('notes');
+			});
 		</script>
 	</body>
 </html>

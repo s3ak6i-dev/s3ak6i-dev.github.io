@@ -292,6 +292,11 @@ const csOgDescription = csRepoLabel
     <Footer />
 
     <script>
+      // Every case study uses this same template/script — the module only
+      // executes once (cached per URL), so astro:page-load re-runs this on
+      // every View Transitions navigation to wire up whichever case study
+      // is currently showing, instead of only the first one ever visited.
+      document.addEventListener('astro:page-load', () => {
       document.querySelectorAll<HTMLElement>('.acc-item').forEach(item => {
         const trigger = item.querySelector('.acc-trigger') as HTMLButtonElement;
         trigger.addEventListener('click', () => {
@@ -307,6 +312,7 @@ const csOgDescription = csRepoLabel
             trigger.setAttribute('aria-expanded', 'true');
           }
         });
+      });
       });
     </script>
   </body>

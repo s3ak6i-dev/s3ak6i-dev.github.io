@@ -231,17 +231,30 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 		</main>
 		<Footer />
 		<script>
-			const bar = document.getElementById('read-progress') as HTMLDivElement;
-			function updateProgress() {
-				const article = document.querySelector('article');
-				if (!article || !bar) return;
-				const { top, height } = article.getBoundingClientRect();
-				const scrolled = Math.max(0, -top);
-				const total = height - window.innerHeight;
-				bar.style.width = total > 0 ? Math.min(100, (scrolled / total) * 100) + '%' : '0%';
-			}
-			window.addEventListener('scroll', updateProgress, { passive: true });
-			updateProgress();
+			// Every post uses this same layout/script — the module only executes
+			// once (cached per URL), so astro:page-load re-runs this on every
+			// View Transitions navigation to track whichever post is now showing.
+			document.addEventListener('astro:page-load', () => {
+				(window as any).__readProgressCleanup?.();
+
+				const bar = document.getElementById('read-progress') as HTMLDivElement | null;
+				if (!bar) return;
+
+				function updateProgress() {
+					const article = document.querySelector('article');
+					if (!article || !bar) return;
+					const { top, height } = article.getBoundingClientRect();
+					const scrolled = Math.max(0, -top);
+					const total = height - window.innerHeight;
+					bar.style.width = total > 0 ? Math.min(100, (scrolled / total) * 100) + '%' : '0%';
+				}
+				window.addEventListener('scroll', updateProgress, { passive: true });
+				updateProgress();
+
+				(window as any).__readProgressCleanup = () => {
+					window.removeEventListener('scroll', updateProgress);
+				};
+			});
 		</script>
 	</body>
 </html>

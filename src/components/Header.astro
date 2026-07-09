@@ -135,10 +135,15 @@ import SecretEaster from './SecretEaster.astro';
 </style>
 
 <script>
-	const toggle = document.querySelector('.menu-toggle') as HTMLButtonElement;
-	const links = document.getElementById('nav-links');
-	toggle?.addEventListener('click', () => {
-		const open = links?.classList.toggle('open');
-		toggle.setAttribute('aria-expanded', String(open));
+	// Header persists across pages, but its script only ever executes once
+	// (modules are cached per URL) — astro:page-load re-runs this on every
+	// View Transitions navigation so the toggle keeps working on every page.
+	document.addEventListener('astro:page-load', () => {
+		const toggle = document.querySelector('.menu-toggle') as HTMLButtonElement | null;
+		const links = document.getElementById('nav-links');
+		toggle?.addEventListener('click', () => {
+			const open = links?.classList.toggle('open');
+			toggle.setAttribute('aria-expanded', String(open));
+		});
 	});
 </script>

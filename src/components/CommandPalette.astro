@@ -232,108 +232,123 @@ const [posts, notes] = await Promise.all([getBlogPosts(), getNotes()]);
 </style>
 
 <script>
-  const backdrop = document.getElementById('cp-backdrop')!;
-  const modal    = document.getElementById('cp-modal')!;
-  const input    = document.getElementById('cp-input') as HTMLInputElement;
-  const list     = document.getElementById('cp-list')!;
-  const empty    = document.getElementById('cp-empty')!;
+  // Header (and this palette) render fresh on every page, but their script
+  // only ever executes once (modules are cached per URL) — astro:page-load
+  // re-runs this setup on every View Transitions navigation so the palette
+  // keeps working against the current page's elements instead of stale,
+  // detached ones from whichever page loaded first.
+  document.addEventListener('astro:page-load', () => {
+    (window as any).__cpCleanup?.();
 
-  function open() {
-    backdrop.classList.add('open');
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-    input.value = '';
-    filterItems('');
-    setActive(0);
-    input.focus();
-  }
+    const backdrop = document.getElementById('cp-backdrop');
+    const modal    = document.getElementById('cp-modal');
+    const input    = document.getElementById('cp-input') as HTMLInputElement | null;
+    const list     = document.getElementById('cp-list');
+    const empty    = document.getElementById('cp-empty');
+    if (!backdrop || !modal || !input || !list || !empty) return;
 
-  function close() {
-    backdrop.classList.remove('open');
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-  }
+    function open() {
+      backdrop!.classList.add('open');
+      modal!.classList.add('open');
+      modal!.setAttribute('aria-hidden', 'false');
+      input!.value = '';
+      filterItems('');
+      setActive(0);
+      input!.focus();
+    }
 
-  function items() {
-    return Array.from(list.querySelectorAll<HTMLElement>('.cp-item:not(.hidden)'));
-  }
+    function close() {
+      backdrop!.classList.remove('open');
+      modal!.classList.remove('open');
+      modal!.setAttribute('aria-hidden', 'true');
+    }
 
-  function setActive(idx: number) {
-    items().forEach((el, i) => el.classList.toggle('active', i === idx));
-  }
+    function items() {
+      return Array.from(list!.querySelectorAll<HTMLElement>('.cp-item:not(.hidden)'));
+    }
 
-  function activeIndex() {
-    return items().findIndex(el => el.classList.contains('active'));
-  }
+    function setActive(idx: number) {
+      items().forEach((el, i) => el.classList.toggle('active', i === idx));
+    }
 
-  function navigate(el: HTMLElement) {
-    const href = el.dataset.href!;
-    const external = el.classList.contains('cp-external');
-    close();
-    if (external) window.open(href, '_blank', 'noopener');
-    else window.location.href = href;
-  }
+    function activeIndex() {
+      return items().findIndex(el => el.classList.contains('active'));
+    }
 
-  function filterItems(query: string) {
-    const q = query.toLowerCase().trim();
-    list.querySelectorAll<HTMLElement>('.cp-item').forEach(el => {
-      const text     = el.textContent?.toLowerCase() ?? '';
-      const keywords = el.dataset.keywords?.toLowerCase() ?? '';
-      el.classList.toggle('hidden', q !== '' && !text.includes(q) && !keywords.includes(q));
-    });
-    // hide groups with no visible items
-    list.querySelectorAll<HTMLElement>('.cp-group').forEach(group => {
-      let next = group.nextElementSibling as HTMLElement | null;
-      let hasVisible = false;
-      while (next && !next.classList.contains('cp-group')) {
-        if (!next.classList.contains('hidden')) hasVisible = true;
-        next = next.nextElementSibling as HTMLElement | null;
+    function navigate(el: HTMLElement) {
+      const href = el.dataset.href!;
+      const external = el.classList.contains('cp-external');
+      close();
+      if (external) window.open(href, '_blank', 'noopener');
+      else window.location.href = href;
+    }
+
+    function filterItems(query: string) {
+      const q = query.toLowerCase().trim();
+      list!.querySelectorAll<HTMLElement>('.cp-item').forEach(el => {
+        const text     = el.textContent?.toLowerCase() ?? '';
+        const keywords = el.dataset.keywords?.toLowerCase() ?? '';
+        el.classList.toggle('hidden', q !== '' && !text.includes(q) && !keywords.includes(q));
+      });
+      // hide groups with no visible items
+      list!.querySelectorAll<HTMLElement>('.cp-group').forEach(group => {
+        let next = group.nextElementSibling as HTMLElement | null;
+        let hasVisible = false;
+        while (next && !next.classList.contains('cp-group')) {
+          if (!next.classList.contains('hidden')) hasVisible = true;
+          next = next.nextElementSibling as HTMLElement | null;
+        }
+        group.style.display = hasVisible ? '' : 'none';
+      });
+
+      const hasResults = items().length > 0;
+      list!.style.display  = hasResults ? '' : 'none';
+      empty!.classList.toggle('visible', !hasResults);
+    }
+
+    // keyboard shortcut
+    const onKeydown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().includes('MAC');
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        modal!.classList.contains('open') ? close() : open();
+        return;
       }
-      group.style.display = hasVisible ? '' : 'none';
+      if (!modal!.classList.contains('open')) return;
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const all = items(); const i = activeIndex();
+        setActive(Math.min(i + 1, all.length - 1));
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActive(Math.max(activeIndex() - 1, 0));
+      }
+      if (e.key === 'Enter') {
+        const el = items()[activeIndex()];
+        if (el) navigate(el);
+      }
+    };
+    document.addEventListener('keydown', onKeydown);
+
+    input.addEventListener('input', () => {
+      filterItems(input.value);
+      setActive(0);
     });
 
-    const hasResults = items().length > 0;
-    list.style.display  = hasResults ? '' : 'none';
-    empty.classList.toggle('visible', !hasResults);
-  }
-
-  // keyboard shortcut
-  document.addEventListener('keydown', e => {
-    const isMac = navigator.platform.toUpperCase().includes('MAC');
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'k') {
-      e.preventDefault();
-      modal.classList.contains('open') ? close() : open();
-      return;
-    }
-    if (!modal.classList.contains('open')) return;
-    if (e.key === 'Escape') { close(); return; }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      const all = items(); const i = activeIndex();
-      setActive(Math.min(i + 1, all.length - 1));
-    }
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setActive(Math.max(activeIndex() - 1, 0));
-    }
-    if (e.key === 'Enter') {
-      const el = items()[activeIndex()];
+    list.addEventListener('click', e => {
+      const el = (e.target as HTMLElement).closest<HTMLElement>('.cp-item');
       if (el) navigate(el);
-    }
+    });
+
+    backdrop.addEventListener('click', close);
+
+    // expose open() for the nav button
+    (window as any).__cpOpen = open;
+
+    (window as any).__cpCleanup = () => {
+      document.removeEventListener('keydown', onKeydown);
+    };
   });
-
-  input.addEventListener('input', () => {
-    filterItems(input.value);
-    setActive(0);
-  });
-
-  list.addEventListener('click', e => {
-    const el = (e.target as HTMLElement).closest<HTMLElement>('.cp-item');
-    if (el) navigate(el);
-  });
-
-  backdrop.addEventListener('click', close);
-
-  // expose open() for the nav button
-  (window as any).__cpOpen = open;
 </script>

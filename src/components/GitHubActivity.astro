@@ -127,6 +127,12 @@ const GITHUB_USER = 's3ak6i-dev';
 </style>
 
 <script define:vars={{ GITHUB_USER }}>
+// This widget currently only lives on /now, but its script only ever executes
+// once (modules are cached per URL) — astro:page-load re-runs it so leaving
+// and returning to /now via a View Transitions navigation re-fetches and
+// re-renders instead of showing stale or stuck-on-skeleton content.
+document.addEventListener('astro:page-load', () => {
+if (!document.getElementById('gh-own-feed')) return;
 (async () => {
   const ACCENT = [232, 96, 44];
   const WEEKS  = 26;
@@ -260,4 +266,5 @@ const GITHUB_USER = 's3ak6i-dev';
     });
   }
 })();
+});
 </script>

@@ -383,22 +383,27 @@ const ANGLES = [
 		<Footer />
 
 		<script>
-			const tabs = document.querySelectorAll<HTMLButtonElement>('.tab');
-			const panels: Record<string, HTMLElement | null> = {
-				'projects':      document.getElementById('panel-projects'),
-				'case-studies':  document.getElementById('panel-case-studies'),
-			};
+			// Revisiting /projects via a View Transitions navigation doesn't
+			// re-execute this module (cached per URL) — astro:page-load re-runs it
+			// so the tabs wire up against the freshly-swapped-in elements each time.
+			document.addEventListener('astro:page-load', () => {
+				const tabs = document.querySelectorAll<HTMLButtonElement>('.tab');
+				const panels: Record<string, HTMLElement | null> = {
+					'projects':      document.getElementById('panel-projects'),
+					'case-studies':  document.getElementById('panel-case-studies'),
+				};
 
-			function activate(tab: string) {
-				tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-				Object.entries(panels).forEach(([key, el]) => {
-					if (el) el.style.display = key === tab ? '' : 'none';
-				});
-				history.replaceState(null, '', tab === 'case-studies' ? '#case-studies' : '#projects');
-			}
+				function activate(tab: string) {
+					tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+					Object.entries(panels).forEach(([key, el]) => {
+						if (el) el.style.display = key === tab ? '' : 'none';
+					});
+					history.replaceState(null, '', tab === 'case-studies' ? '#case-studies' : '#projects');
+				}
 
-			tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab!)));
-			if (location.hash === '#case-studies') activate('case-studies');
+				tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab!)));
+				if (location.hash === '#case-studies') activate('case-studies');
+			});
 		</script>
 	</body>
 </html>

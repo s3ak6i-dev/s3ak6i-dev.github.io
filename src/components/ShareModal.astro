@@ -301,20 +301,30 @@ const repoLabel = githubUrl ? new URL(githubUrl).pathname.replace(/^\/|\/$/g, ''
 </style>
 
 <script>
-	(() => {
-		const trigger  = document.getElementById('share-trigger') as HTMLButtonElement;
-		const backdrop = document.getElementById('share-backdrop') as HTMLDivElement;
-		const modal    = document.getElementById('share-modal') as HTMLDivElement;
-		const closeBtn = document.getElementById('share-close') as HTMLButtonElement;
-		const urlLine  = document.getElementById('share-preview-url') as HTMLParagraphElement;
-		const copyBtn  = document.getElementById('share-copy') as HTMLButtonElement;
-		const copyLbl  = document.getElementById('share-copy-label') as HTMLSpanElement;
-		const moreBtn  = document.getElementById('share-more') as HTMLButtonElement;
+	// ShareModal is embedded on many different pages (posts, notes, projects,
+	// case studies), but its script is only ever executed once by the browser
+	// (modules are cached per URL) — astro:page-load re-runs this setup on
+	// every View Transitions navigation so each new page's own trigger/modal
+	// get wired up, instead of only whichever page happened to load first.
+	document.addEventListener('astro:page-load', () => {
+		(window as any).__shareModalCleanup?.();
 
-		const xLink        = document.getElementById('share-x') as HTMLAnchorElement;
-		const linkedinLink = document.getElementById('share-linkedin') as HTMLAnchorElement;
-		const facebookLink = document.getElementById('share-facebook') as HTMLAnchorElement;
-		const emailLink    = document.getElementById('share-email') as HTMLAnchorElement;
+		const trigger  = document.getElementById('share-trigger') as HTMLButtonElement | null;
+		const backdrop = document.getElementById('share-backdrop') as HTMLDivElement | null;
+		const modal    = document.getElementById('share-modal') as HTMLDivElement | null;
+		const closeBtn = document.getElementById('share-close') as HTMLButtonElement | null;
+		const urlLine  = document.getElementById('share-preview-url') as HTMLParagraphElement | null;
+		const copyBtn  = document.getElementById('share-copy') as HTMLButtonElement | null;
+		const copyLbl  = document.getElementById('share-copy-label') as HTMLSpanElement | null;
+		const moreBtn  = document.getElementById('share-more') as HTMLButtonElement | null;
+
+		const xLink        = document.getElementById('share-x') as HTMLAnchorElement | null;
+		const linkedinLink = document.getElementById('share-linkedin') as HTMLAnchorElement | null;
+		const facebookLink = document.getElementById('share-facebook') as HTMLAnchorElement | null;
+		const emailLink    = document.getElementById('share-email') as HTMLAnchorElement | null;
+
+		if (!trigger || !backdrop || !modal || !closeBtn || !urlLine || !copyBtn || !copyLbl
+			|| !moreBtn || !xLink || !linkedinLink || !facebookLink || !emailLink) return;
 
 		// Move the backdrop/modal to be direct children of <body> — otherwise they can
 		// end up nested inside an ancestor with `transform` (e.g. the scroll fade-up
@@ -325,38 +335,40 @@ const repoLabel = githubUrl ? new URL(githubUrl).pathname.replace(/^\/|\/$/g, ''
 
 		function open() {
 			const url   = window.location.href;
-			const title = copyBtn.dataset.title ?? document.title;
+			const title = copyBtn!.dataset.title ?? document.title;
 
-			urlLine.textContent = url.replace(/^https?:\/\//, '');
-			xLink.href        = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-			linkedinLink.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-			facebookLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-			emailLink.href    = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
+			urlLine!.textContent = url.replace(/^https?:\/\//, '');
+			xLink!.href        = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+			linkedinLink!.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+			facebookLink!.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+			emailLink!.href    = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
 
 			if (navigator.share) {
-				moreBtn.style.display = '';
+				moreBtn!.style.display = '';
 			}
 
-			backdrop.classList.add('open');
-			modal.classList.add('open');
+			backdrop!.classList.add('open');
+			modal!.classList.add('open');
 		}
 
 		function close() {
-			backdrop.classList.remove('open');
-			modal.classList.remove('open');
+			backdrop!.classList.remove('open');
+			modal!.classList.remove('open');
 		}
 
 		trigger.addEventListener('click', open);
 		closeBtn.addEventListener('click', close);
 		backdrop.addEventListener('click', close);
-		document.addEventListener('keydown', e => {
+
+		const onKeydown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') close();
-		});
+		};
+		document.addEventListener('keydown', onKeydown);
 
 		copyBtn.addEventListener('click', async () => {
 			await navigator.clipboard.writeText(window.location.href);
-			copyLbl.textContent = 'Copied!';
-			setTimeout(() => { copyLbl.textContent = 'Copy link'; }, 2000);
+			copyLbl!.textContent = 'Copied!';
+			setTimeout(() => { copyLbl!.textContent = 'Copy link'; }, 2000);
 		});
 
 		moreBtn.addEventListener('click', async () => {
@@ -366,5 +378,11 @@ const repoLabel = githubUrl ? new URL(githubUrl).pathname.replace(/^\/|\/$/g, ''
 				/* user cancelled the native share sheet — nothing to do */
 			}
 		});
-	})();
+
+		(window as any).__shareModalCleanup = () => {
+			document.removeEventListener('keydown', onKeydown);
+			backdrop?.remove();
+			modal?.remove();
+		};
+	});
 </script>

@@ -337,19 +337,27 @@ const posts = (await getBlogPosts()).slice(0, 3);
 		</main>
 		<Footer />
 		<script>
-			(() => {
+			// Revisiting / via a View Transitions navigation doesn't re-execute
+			// this module (cached per URL) — astro:page-load re-runs it, and the
+			// cleanup stops the previous (now-pointless) setTimeout chain so it
+			// doesn't keep ticking against a detached element forever.
+			document.addEventListener('astro:page-load', () => {
+				(window as any).__typewriterCleanup?.();
+
 				const phrases = [
 					'AI Engineer. Building at the intersection of ML and systems.',
 					'ML Researcher. 2 IEEE publications, 1 filed patent.',
 					'Builder. 5 projects shipped.',
 				];
 
-				const el    = document.getElementById('tw');
+				const el = document.getElementById('tw');
 				if (!el) return;
 
 				let pi    = 0;   // phrase index
 				let ci    = 0;   // char index
 				let del   = false;
+				let stopped = false;
+				let timer: ReturnType<typeof setTimeout>;
 
 				const TYPE_MS   = 42;
 				const DEL_MS    = 18;
@@ -357,30 +365,36 @@ const posts = (await getBlogPosts()).slice(0, 3);
 				const PAUSE_NEW = 350;
 
 				function tick() {
+					if (stopped) return;
 					const phrase = phrases[pi];
 
 					if (!del) {
-						el.textContent = phrase.slice(0, ++ci);
+						el!.textContent = phrase.slice(0, ++ci);
 						if (ci === phrase.length) {
 							del = true;
-							setTimeout(tick, PAUSE_END);
+							timer = setTimeout(tick, PAUSE_END);
 						} else {
-							setTimeout(tick, TYPE_MS);
+							timer = setTimeout(tick, TYPE_MS);
 						}
 					} else {
-						el.textContent = phrase.slice(0, --ci);
+						el!.textContent = phrase.slice(0, --ci);
 						if (ci === 0) {
 							del = false;
 							pi  = (pi + 1) % phrases.length;
-							setTimeout(tick, PAUSE_NEW);
+							timer = setTimeout(tick, PAUSE_NEW);
 						} else {
-							setTimeout(tick, DEL_MS);
+							timer = setTimeout(tick, DEL_MS);
 						}
 					}
 				}
 
-				setTimeout(tick, 400);
-			})();
+				timer = setTimeout(tick, 400);
+
+				(window as any).__typewriterCleanup = () => {
+					stopped = true;
+					clearTimeout(timer);
+				};
+			});
 		</script>
 	</body>
 </html>

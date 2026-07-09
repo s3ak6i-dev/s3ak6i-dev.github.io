@@ -109,109 +109,126 @@ const { title, subtitle, gifSrc, gifAlt = '' } = Astro.props;
 </style>
 
 <script>
-const canvas = document.querySelector('.hero-canvas') as HTMLCanvasElement;
-const ctx = canvas.getContext('2d')!;
-const section = canvas.parentElement!;
+// `astro:page-load` fires on the initial load AND after every View Transitions
+// navigation. PageHero is reused across many pages, so without this, the
+// canvas setup only ever ran for whichever page happened to load it first —
+// every other page's canvas sat inert until a hard reload.
+document.addEventListener('astro:page-load', () => {
+  (window as any).__pageHeroCleanup?.();
 
-let W = 0, H = 0;
-const mouse = { x: -9999, y: -9999, active: false };
+  const canvas = document.querySelector('.hero-canvas') as HTMLCanvasElement | null;
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d')!;
+  const section = canvas.parentElement!;
 
-const SPACING    = 28;
-const DOT_R      = 1.5;
-const CURSOR_R   = 150;
-const REPEL      = 6;
-const SPRING_K   = 0.10;
-const DAMPING    = 0.70;
-const BASE_ALPHA = 0.10;
-const ACTIVE_ALPHA = 0.80;
+  let W = 0, H = 0;
+  const mouse = { x: -9999, y: -9999, active: false };
 
-type Dot = { hx:number; hy:number; ox:number; oy:number; vx:number; vy:number };
-let dots: Dot[] = [];
+  const SPACING    = 28;
+  const DOT_R      = 1.5;
+  const CURSOR_R   = 150;
+  const REPEL      = 6;
+  const SPRING_K   = 0.10;
+  const DAMPING    = 0.70;
+  const BASE_ALPHA = 0.10;
+  const ACTIVE_ALPHA = 0.80;
 
-function buildGrid() {
-  dots = [];
-  const cols = Math.ceil(W / SPACING) + 2;
-  const rows = Math.ceil(H / SPACING) + 2;
-  const startX = -((cols * SPACING - W) / 2);
-  const startY = -((rows * SPACING - H) / 2);
-  for (let r = 0; r < rows; r++)
-    for (let c = 0; c < cols; c++)
-      dots.push({ hx: startX + c*SPACING, hy: startY + r*SPACING, ox:0, oy:0, vx:0, vy:0 });
-}
+  type Dot = { hx:number; hy:number; ox:number; oy:number; vx:number; vy:number };
+  let dots: Dot[] = [];
 
-function resize() {
-  W = canvas.width  = section.offsetWidth;
-  H = canvas.height = section.offsetHeight;
-  buildGrid();
-}
-window.addEventListener('resize', resize);
+  function buildGrid() {
+    dots = [];
+    const cols = Math.ceil(W / SPACING) + 2;
+    const rows = Math.ceil(H / SPACING) + 2;
+    const startX = -((cols * SPACING - W) / 2);
+    const startY = -((rows * SPACING - H) / 2);
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        dots.push({ hx: startX + c*SPACING, hy: startY + r*SPACING, ox:0, oy:0, vx:0, vy:0 });
+  }
 
-section.addEventListener('mousemove', e => {
-  const r = section.getBoundingClientRect();
-  mouse.x = e.clientX - r.left;
-  mouse.y = e.clientY - r.top;
-  mouse.active = true;
-});
-section.addEventListener('mouseleave', () => { mouse.active = false; });
+  function resize() {
+    W = canvas.width  = section.offsetWidth;
+    H = canvas.height = section.offsetHeight;
+    buildGrid();
+  }
+  window.addEventListener('resize', resize);
 
-section.addEventListener('touchmove', e => {
-  const r = section.getBoundingClientRect();
-  mouse.x = e.touches[0].clientX - r.left;
-  mouse.y = e.touches[0].clientY - r.top;
-  mouse.active = true;
-}, { passive: true });
-section.addEventListener('touchend', () => { mouse.active = false; });
+  const onMouseMove = (e: MouseEvent) => {
+    const r = section.getBoundingClientRect();
+    mouse.x = e.clientX - r.left;
+    mouse.y = e.clientY - r.top;
+    mouse.active = true;
+  };
+  const onMouseLeave = () => { mouse.active = false; };
+  const onTouchMove = (e: TouchEvent) => {
+    const r = section.getBoundingClientRect();
+    mouse.x = e.touches[0].clientX - r.left;
+    mouse.y = e.touches[0].clientY - r.top;
+    mouse.active = true;
+  };
+  const onTouchEnd = () => { mouse.active = false; };
 
-function update() {
-  const mx = mouse.x, my = mouse.y;
-  for (const d of dots) {
-    const cx = d.hx + d.ox, cy = d.hy + d.oy;
-    const dx = cx - mx, dy = cy - my;
-    const d2 = dx*dx + dy*dy;
-    if (mouse.active && d2 < CURSOR_R * CURSOR_R && d2 > 0) {
-      const dist = Math.sqrt(d2);
-      const force = REPEL * Math.pow(1 - dist / CURSOR_R, 2);
-      d.vx += (dx / dist) * force;
-      d.vy += (dy / dist) * force;
+  section.addEventListener('mousemove', onMouseMove);
+  section.addEventListener('mouseleave', onMouseLeave);
+  section.addEventListener('touchmove', onTouchMove, { passive: true });
+  section.addEventListener('touchend', onTouchEnd);
+
+  function update() {
+    const mx = mouse.x, my = mouse.y;
+    for (const d of dots) {
+      const cx = d.hx + d.ox, cy = d.hy + d.oy;
+      const dx = cx - mx, dy = cy - my;
+      const d2 = dx*dx + dy*dy;
+      if (mouse.active && d2 < CURSOR_R * CURSOR_R && d2 > 0) {
+        const dist = Math.sqrt(d2);
+        const force = REPEL * Math.pow(1 - dist / CURSOR_R, 2);
+        d.vx += (dx / dist) * force;
+        d.vy += (dy / dist) * force;
+      }
+      d.vx -= d.ox * SPRING_K;
+      d.vy -= d.oy * SPRING_K;
+      d.vx *= DAMPING;
+      d.vy *= DAMPING;
+      d.ox += d.vx;
+      d.oy += d.vy;
     }
-    d.vx -= d.ox * SPRING_K;
-    d.vy -= d.oy * SPRING_K;
-    d.vx *= DAMPING;
-    d.vy *= DAMPING;
-    d.ox += d.vx;
-    d.oy += d.vy;
   }
-}
 
-function draw() {
-  ctx.clearRect(0, 0, W, H);
-  const mx = mouse.x, my = mouse.y;
-  for (const d of dots) {
-    const cx = d.hx + d.ox, cy = d.hy + d.oy;
-    const dx = cx - mx, dy = cy - my;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    const alpha = (mouse.active && dist < CURSOR_R)
-      ? BASE_ALPHA + (ACTIVE_ALPHA - BASE_ALPHA) * Math.pow(1 - dist / CURSOR_R, 2)
-      : BASE_ALPHA;
-    ctx.beginPath();
-    ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(232,96,44,${alpha})`;
-    ctx.fill();
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const mx = mouse.x, my = mouse.y;
+    for (const d of dots) {
+      const cx = d.hx + d.ox, cy = d.hy + d.oy;
+      const dx = cx - mx, dy = cy - my;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const alpha = (mouse.active && dist < CURSOR_R)
+        ? BASE_ALPHA + (ACTIVE_ALPHA - BASE_ALPHA) * Math.pow(1 - dist / CURSOR_R, 2)
+        : BASE_ALPHA;
+      ctx.beginPath();
+      ctx.arc(cx, cy, DOT_R, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(232,96,44,${alpha})`;
+      ctx.fill();
+    }
   }
-}
 
-let running = true;
-function loop() {
-  if (!running) return;
-  update(); draw();
-  requestAnimationFrame(loop);
-}
+  let running = true;
+  function loop() {
+    if (!running) return;
+    update(); draw();
+    requestAnimationFrame(loop);
+  }
 
-function start() {
-  resize();
-  if (W === 0 || H === 0) { requestAnimationFrame(start); return; }
-  loop();
-}
-requestAnimationFrame(start);
-window.addEventListener('beforeunload', () => { running = false; }, { once: true });
+  function start() {
+    resize();
+    if (W === 0 || H === 0) { requestAnimationFrame(start); return; }
+    loop();
+  }
+  requestAnimationFrame(start);
+
+  (window as any).__pageHeroCleanup = () => {
+    running = false;
+    window.removeEventListener('resize', resize);
+  };
+});
 </script>
