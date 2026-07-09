@@ -17,6 +17,13 @@ export async function getStaticPaths() {
 const { project: stub } = Astro.props;
 const project = await getProject(stub.slug);
 if (!project) return Astro.redirect('/projects');
+
+const repoLabel = project.github
+	? new URL(project.github).pathname.replace(/^\/|\/$/g, '')
+	: undefined;
+const ogDescription = repoLabel
+	? `${project.description} → github.com/${repoLabel}`
+	: project.description;
 ---
 
 <!doctype html>
@@ -24,7 +31,7 @@ if (!project) return Astro.redirect('/projects');
 	<head>
 		<BaseHead
 			title={`${project.name} — ${SITE_TITLE}`}
-			description={project.description}
+			description={ogDescription}
 			image={project.image}
 		/>
 		<style>

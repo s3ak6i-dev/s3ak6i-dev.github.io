@@ -23,11 +23,18 @@ const ANGLES = [
 ] as const;
 
 const filled = ANGLES.filter(a => cs[a.key]);
+
+const csRepoLabel = cs.github
+  ? new URL(cs.github).pathname.replace(/^\/|\/$/g, '')
+  : undefined;
+const csOgDescription = csRepoLabel
+  ? `${cs.summary} → github.com/${csRepoLabel}`
+  : cs.summary;
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={`${cs.title} — Case Study — ${SITE_TITLE}`} description={cs.summary} />
+    <BaseHead title={`${cs.title} — Case Study — ${SITE_TITLE}`} description={csOgDescription} />
     <style>
       .wrap {
         width: 720px;
