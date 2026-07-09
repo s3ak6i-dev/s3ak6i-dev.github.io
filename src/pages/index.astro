@@ -4,7 +4,7 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import DotGrid from '../components/DotGrid.astro';
 import { getBlogPosts } from '../lib/contentful';
-import { GITHUB_URL, LINKEDIN_URL, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { GITHUB_URL, SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 const posts = (await getBlogPosts()).slice(0, 3);
 ---
@@ -333,17 +333,6 @@ const posts = (await getBlogPosts()).slice(0, 3);
 					<a class="view-all" href="/blog">View all posts →</a>
 				</section>
 
-				<!-- About -->
-				<section class="section">
-					<h2 class="section-heading">About</h2>
-					<p class="about-text">
-						I'm a final-year AI &amp; Computer Science student at Amrita Vishwa Vidyapeetham, Bengaluru.
-						I build systems at the intersection of machine learning and product. Two IEEE publications,
-						a filed patent, and five shipped projects. Find me on{' '}
-						<a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a> or{' '}
-						<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a>.
-					</p>
-				</section>
 			</div>
 		</main>
 		<Footer />
@@ -352,7 +341,7 @@ const posts = (await getBlogPosts()).slice(0, 3);
 				const phrases = [
 					'AI Engineer. Building at the intersection of ML and systems.',
 					'ML Researcher. 2 IEEE publications, 1 filed patent.',
-					'Builder. 6 projects shipped.',
+					'Builder. 5 projects shipped.',
 				];
 
 				const el    = document.getElementById('tw');

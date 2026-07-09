@@ -1,63 +1,345 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
-import Layout from '../layouts/BlogPost.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import PageHero from '../components/PageHero.astro';
+import { GITHUB_URL, LINKEDIN_URL, SITE_TITLE } from '../consts';
+
+const projects = [
+	{
+		name: 'Datrix',
+		blurb: 'AI data infrastructure & governance platform — upload raw files, get quality scoring, a cleaning wizard, synthetic data generation (CTGAN/TVAE), and GDPR/HIPAA/CCPA compliance reports. 28 SQLAlchemy tables underneath. Live on Vercel.',
+		stack: ['FastAPI', 'React', 'Polars', 'PostgreSQL', 'CTGAN', 'Docker'],
+	},
+	{
+		name: 'Cortex',
+		blurb: 'Memory-first multi-agent orchestration — the shared memory pool is the hub, agents are just workers reading and writing to it. Built in two days with Claude Code, 75 features and 36 bugs later.',
+		stack: ['React 18', 'FastAPI', 'Mem0', 'React Flow', 'Groq'],
+	},
+	{
+		name: 'AgentRank',
+		blurb: "A trust & reputation layer for AI agents. MCP and A2A handle how agents connect — AgentRank tells you whether one's actually any good, with Bronze-to-Platinum trust tiers built on real reviews.",
+		stack: ['Next.js 15', 'TypeScript', 'PostgreSQL', 'Drizzle ORM'],
+	},
+];
 ---
 
-<Layout
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	pubDate={new Date('August 08 2021')}
-	heroImage={AboutHeroImage}
->
-	<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-		labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-		viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam
-		adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus
-		et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus
-		vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque
-		sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
-	</p>
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`About — ${SITE_TITLE}`}
+			description="Surya Krishna — AI Engineer at Paramount Computer Systems, final-year AI & CS student, building agent infrastructure and data systems."
+		/>
+		<style>
+			.page {
+				width: 720px;
+				max-width: calc(100% - 2rem);
+				margin: 0 auto;
+				padding: 3rem 1rem 5rem;
+			}
 
-	<p>
-		Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non
-		tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non
-		blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna
-		porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis
-		massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc.
-		Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis
-		bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra
-		massa massa ultricies mi.
-	</p>
+			.section {
+				margin-bottom: 3rem;
+			}
 
-	<p>
-		Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl
-		suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet
-		nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae
-		turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem
-		dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat
-		semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus
-		vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum
-		facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam
-		vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla
-		urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
-	</p>
+			.section-label {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: var(--accent);
+				margin-bottom: 1.25rem;
+			}
 
-	<p>
-		Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper
-		viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc
-		scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur
-		gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus
-		pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim
-		blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id
-		cursus metus aliquam eleifend mi.
-	</p>
+			.intro {
+				font-size: 1rem;
+				color: var(--text-muted);
+				line-height: 1.75;
+				margin: 0 0 1rem;
+			}
 
-	<p>
-		Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta
-		nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam
-		tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci
-		ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar
-		proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
-	</p>
-</Layout>
+			.intro a {
+				color: var(--accent);
+			}
+
+			.intro a:hover {
+				color: var(--accent-dim);
+			}
+
+			.resume-btn {
+				display: inline-block;
+				margin-top: 0.5rem;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 12px;
+				letter-spacing: 0.08em;
+				color: var(--accent);
+				border: 1px solid var(--accent);
+				padding: 0.6rem 1.25rem;
+				border-radius: 4px;
+				text-decoration: none;
+				transition: background 0.2s, color 0.2s;
+			}
+
+			.resume-btn:hover {
+				background: var(--accent);
+				color: #0d0d0d;
+			}
+
+			/* Timeline */
+			.role {
+				padding: 1.25rem 0;
+				border-top: 1px solid var(--border);
+			}
+
+			.role:last-child {
+				border-bottom: 1px solid var(--border);
+			}
+
+			.role-top {
+				display: flex;
+				justify-content: space-between;
+				align-items: baseline;
+				gap: 1rem;
+				flex-wrap: wrap;
+				margin-bottom: 0.375rem;
+			}
+
+			.role-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1rem;
+				font-weight: 500;
+				color: var(--text);
+			}
+
+			.role-title .company {
+				color: var(--text-muted);
+				font-weight: 400;
+			}
+
+			.role-when {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 12px;
+				color: var(--text-muted);
+				white-space: nowrap;
+			}
+
+			.role-badge {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 10px;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #4ade80;
+				background: #4ade8010;
+				border: 1px solid #4ade8040;
+				border-radius: 4px;
+				padding: 1px 7px;
+				margin-left: 0.5rem;
+			}
+
+			.role-desc {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.65;
+				margin: 0;
+			}
+
+			/* Projects */
+			.proj {
+				padding: 1.25rem 0;
+				border-top: 1px solid var(--border);
+			}
+
+			.proj:last-child {
+				border-bottom: 1px solid var(--border);
+			}
+
+			.proj-name {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1rem;
+				font-weight: 500;
+				color: var(--accent);
+				margin: 0 0 0.375rem;
+			}
+
+			.proj-blurb {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.65;
+				margin: 0 0 0.75rem;
+			}
+
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.375rem;
+			}
+
+			.tag {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				color: var(--text-muted);
+				background: var(--surface);
+				border: 1px solid rgba(232,96,44,0.25);
+				border-radius: 4px;
+				padding: 1px 7px;
+			}
+
+			.view-all {
+				display: inline-block;
+				margin-top: 1.25rem;
+				font-size: 0.9375rem;
+				color: var(--accent);
+			}
+
+			.view-all:hover {
+				color: var(--accent-dim);
+			}
+
+			/* Research */
+			.research-line {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.7;
+				margin: 0 0 1.25rem;
+			}
+
+			/* Education */
+			.edu-title {
+				font-family: 'Space Grotesk', sans-serif;
+				font-size: 1rem;
+				font-weight: 500;
+				color: var(--text);
+				margin: 0 0 0.375rem;
+			}
+
+			.edu-meta {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 12px;
+				color: var(--text-muted);
+				margin-bottom: 0.75rem;
+			}
+
+			.edu-desc {
+				font-size: 0.9375rem;
+				color: var(--text-muted);
+				line-height: 1.65;
+				margin: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<PageHero
+			title="About"
+			subtitle="AI engineer, part-time researcher, occasional patent-filer."
+			gifSrc="https://media1.tenor.com/m/PLOH5my7EysAAAAd/harvey-specter-suits.gif"
+			gifAlt="Harvey Specter"
+		/>
+		<main style="padding: 0; max-width: 100%; width: 100%;">
+			<div class="page">
+
+				<!-- Intro -->
+				<section class="section">
+					<p class="intro">
+						I'm Surya — a final-year AI &amp; Computer Science student at Amrita Vishwa Vidyapeetham,
+						Bengaluru, graduating 2026. I build full-stack AI products, mostly at the intersection of
+						agent infrastructure and data systems. Two papers published at IEEE ICCCNT-24 (IIT Mandi),
+						one with 4 citations, plus a patent filed for a multimodal human-computer interaction system.
+					</p>
+					<p class="intro">
+						Five products shipped and live. My internship work has actually leaned
+						more physical than people expect from an AI background — computer vision that watches for
+						limbs near factory machinery, IoT sensors on warehouse equipment. Find me on{' '}
+						<a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a> or{' '}
+						<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a>.
+					</p>
+					<a class="resume-btn" href="/resume.pdf" download>Download résumé ↓</a>
+				</section>
+
+				<!-- Experience -->
+				<section class="section">
+					<p class="section-label">Experience</p>
+
+					<div class="role">
+						<div class="role-top">
+							<span class="role-title">AI Engineer <span class="company">— Paramount Computer Systems</span><span class="role-badge">current</span></span>
+							<span class="role-when">Jul 2026 – Present · Remote</span>
+						</div>
+						<p class="role-desc">
+							Full-time, remote — converted from the internship below. Details not yet disclosable.
+						</p>
+					</div>
+
+					<div class="role">
+						<div class="role-top">
+							<span class="role-title">AI Developer Intern <span class="company">— Paramount Computer Systems</span></span>
+							<span class="role-when">Jan – May 2026 · Bengaluru</span>
+						</div>
+						<p class="role-desc">
+							Built an internal tool that automates support ticket triage across L1, L2, and L3 —
+							classifying tickets on arrival and routing them to the right tier, cutting down the
+							manual back-and-forth that used to happen at each handoff. Most of the time went into
+							the classification logic itself; getting ownership right at intake mattered more than
+							expected for reducing review time downstream.
+						</p>
+					</div>
+
+					<div class="role">
+						<div class="role-top">
+							<span class="role-title">AI Engineer Intern <span class="company">— almIT</span></span>
+							<span class="role-when">Jun – Dec 2025 · Bengaluru</span>
+						</div>
+						<p class="role-desc">
+							Built the real-time computer vision module for Project Sonicster — watching for human
+							limbs near active production lines and triggering safety interlocks before contact,
+							with alert latency kept under a second. Also built the IoT layer for remotely monitoring
+							heavy warehouse machinery, pulling in temperature, humidity, and other sensor data to
+							catch equipment problems early.
+						</p>
+					</div>
+				</section>
+
+				<!-- Selected Projects -->
+				<section class="section">
+					<p class="section-label">Selected Projects</p>
+					{projects.map((p) => (
+						<div class="proj">
+							<h3 class="proj-name">{p.name}</h3>
+							<p class="proj-blurb">{p.blurb}</p>
+							<div class="tags">
+								{p.stack.map((tag) => <span class="tag">{tag}</span>)}
+							</div>
+						</div>
+					))}
+					<a class="view-all" href="/projects">See all projects →</a>
+				</section>
+
+				<!-- Research -->
+				<section class="section">
+					<p class="section-label">Research</p>
+					<p class="research-line">
+						Two papers at IEEE ICCCNT-24, IIT Mandi — dynamic resource allocation for edge computing
+						(quantum-inspired algorithms + game theory, 4 citations), and dynamic portfolio optimization
+						using the proximal gradient method. One patent filed for a hands-free multimodal
+						human-computer interaction system based on vision and speech processing.
+					</p>
+					<a class="view-all" href="/research">Full research page →</a>
+				</section>
+
+				<!-- Education -->
+				<section class="section">
+					<p class="section-label">Education</p>
+					<h3 class="edu-title">B.Tech — Artificial Intelligence &amp; Computer Science</h3>
+					<p class="edu-meta">Amrita Vishwa Vidyapeetham, Bengaluru · 2022 – 2026</p>
+					<p class="edu-desc">
+						Coursework-adjacent research centered on multi-agent systems and resource allocation
+						under uncertainty — themes that keep showing up in the products built outside of class.
+					</p>
+				</section>
+
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>
