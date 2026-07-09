@@ -25,6 +25,7 @@ if (!project) return Astro.redirect('/projects');
 		<BaseHead
 			title={`${project.name} — ${SITE_TITLE}`}
 			description={project.description}
+			image={project.image}
 		/>
 		<style>
 			.prose {

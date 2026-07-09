@@ -2,6 +2,7 @@
 import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import ShareModal from '../../components/ShareModal.astro';
 import { getCaseStudies, getCaseStudy } from '../../lib/contentful';
 import { SITE_TITLE } from '../../consts';
 
@@ -69,12 +70,17 @@ const filled = ANGLES.filter(a => cs[a.key]);
         margin: 0 0 0.75rem;
       }
 
+      .cs-year-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
       .cs-year {
         font-family: 'JetBrains Mono', monospace;
         font-size: 13px;
         color: var(--text-muted);
-        display: block;
-        margin-bottom: 1rem;
       }
 
       .cs-summary {
@@ -243,7 +249,10 @@ const filled = ANGLES.filter(a => cs[a.key]);
         <div class="cs-header">
           <p class="cs-label">&gt;_ case study</p>
           <h1 class="cs-title">{cs.title}</h1>
-          <span class="cs-year">{cs.year}</span>
+          <div class="cs-year-row">
+            <span class="cs-year">{cs.year}</span>
+            <ShareModal title={cs.title} githubUrl={cs.github} label="case study" />
+          </div>
           <p class="cs-summary">{cs.summary}</p>
 
           {(cs.stack?.length || cs.github || cs.demo) && (
