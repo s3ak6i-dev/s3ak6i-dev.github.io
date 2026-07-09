@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Analytics from '@vercel/analytics/astro';
+import { ClientRouter } from 'astro:transitions';
 import { SITE_TITLE, SITE_URL } from '../consts';
 
 interface Props {
@@ -41,6 +42,9 @@ const ogImage = new URL(image, Astro.site).toString();
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
+<!-- View Transitions -->
+<ClientRouter />
+
 <!-- Primary Meta Tags -->
 <title>{title}</title>
 <meta name="title" content={title} />
@@ -63,7 +67,13 @@ const ogImage = new URL(image, Astro.site).toString();
 
 <!-- Scroll fade-in -->
 <script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
+  // `astro:page-load` fires on the initial load AND after every client-side
+  // View Transitions navigation — unlike `DOMContentLoaded`, which only fires once.
+  document.addEventListener('astro:page-load', () => {
+    // Tear down the previous page's scroll listener so it doesn't keep running
+    // against a detached button after `window` (which persists across transitions).
+    window.__bttCleanup?.();
+
     const selectors = [
       '.section',
       '.card',
@@ -93,11 +103,14 @@ const ogImage = new URL(image, Astro.site).toString();
     btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     btt.addEventListener('mouseenter', () => { btt.style.background = 'rgba(232,96,44,0.28)'; });
     btt.addEventListener('mouseleave', () => { btt.style.background = 'rgba(232,96,44,0.12)'; });
-    window.addEventListener('scroll', () => {
+
+    const onScroll = () => {
       const show = window.scrollY > 300;
       btt.style.opacity = show ? '1' : '0';
       btt.style.pointerEvents = show ? 'auto' : 'none';
-    }, { passive: true });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.__bttCleanup = () => window.removeEventListener('scroll', onScroll);
   });
 </script>
 
